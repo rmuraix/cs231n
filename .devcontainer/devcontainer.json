@@ -1,0 +1,35 @@
+{
+    "name": "cs231n-py3-cpu",
+	"build": {
+        "dockerfile": "./Dockerfile"
+    },
+    "containerEnv": {
+		"TZ": "Asia/Tokyo"
+	},
+	"features": {
+		"ghcr.io/devcontainers-contrib/features/poetry:2": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": false,
+            "installOhMyZsh": false,
+            "installOhMyZshConfig": false,
+            "upgradePackages": false,
+            "username": "vscode",
+            "userUid": "automatic",
+            "userGid": "automatic"
+        }
+	},
+	"postCreateCommand": "poetry install",
+    "remoteUser": "vscode",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "tamasfe.even-better-toml",
+                "ms-toolsai.jupyter",
+                "charliermarsh.ruff"
+            ]
+        }
+    }
+}
