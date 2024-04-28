@@ -118,12 +118,12 @@ def svm_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    N = len(y)     # number of samples
+    N = len(y)  # number of samples
     Y_hat = X.dot(W)  # raw scores matrix
 
-    y_hat_true = Y_hat[range(N), y][:, np.newaxis]    # scores for true labels
-    margins = np.maximum(0, Y_hat - y_hat_true + 1)   # margin for each score
-    loss = margins.sum() / N - 1 + reg * np.sum(W**2) # regularized loss
+    y_hat_true = Y_hat[range(N), y][:, np.newaxis]  # scores for true labels
+    margins = np.maximum(0, Y_hat - y_hat_true + 1)  # margin for each score
+    loss = margins.sum() / N - 1 + reg * np.sum(W**2)  # regularized loss
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -143,9 +143,9 @@ def svm_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    dW = (margins > 0).astype(int)    # initial gradient with respect to Y_hat
-    dW[range(N), y] -= dW.sum(axis=1) # update gradient to include correct labels
-    dW = X.T @ dW / N + 2 * reg * W   # gradient with respect to W
+    dW = (margins > 0).astype(int)  # initial gradient with respect to Y_hat
+    dW[range(N), y] -= dW.sum(axis=1)  # update gradient to include correct labels
+    dW = X.T @ dW / N + 2 * reg * W  # gradient with respect to W
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 

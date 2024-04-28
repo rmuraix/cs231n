@@ -80,10 +80,23 @@ class LinearClassifier(object):
             #                                                                       #
             # Hint: Use np.random.choice to generate indices. Sampling with         #
             # replacement is faster than sampling without replacement.              #
+            # --------------------------------------------------------------------- #
+            # この勾配降下のラウンドで使用するために、                                  #
+            # 訓練データとそれに対応するラベルからbatch_sizeの要素をサンプリングする。    #
+            # データをX_batchに、対応するラベルをy_batchに格納する。                    #
+            # サンプリング後、X_batchは形状(batch_size, dim)を持ち、                   #
+            # y_batchは形状(batch_size,)を持つ。                                      #
+            #                                                                       #
+            # ヒント：インデックスを生成するために np.random.choice を使用します。       #
+            # サンプリングは、置換なしでサンプリングするよりも、                         #
+            # 置換でサンプリングする方が速いです。                                     #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            # num_trainの範囲からbatch_sizeの数だけランダムに整数を選択
+            index = np.random.choice(num_train, batch_size)
+            X_batch = X[index]
+            y_batch = y[index]
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -95,10 +108,13 @@ class LinearClassifier(object):
             #########################################################################
             # TODO:                                                                 #
             # Update the weights using the gradient and the learning rate.          #
+            # --------------------------------------------------------------------- #
+            # 勾配と学習率を用いて重みを更新する。                                     #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            # 勾配の負の方向に更新することで損失関数を最小化する
+            self.W -= learning_rate * grad
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -120,15 +136,29 @@ class LinearClassifier(object):
         - y_pred: Predicted labels for the data in X. y_pred is a 1-dimensional
           array of length N, and each element is an integer giving the predicted
           class.
+
+        この線形分類器の学習された重みを使って、データ点のラベルを予測する。
+        を予測する。
+
+        入力
+        - X: 入力： X: 訓練データを含む (N, D) 形式の numpy 配列。
+          個の訓練サンプルが存在する。
+
+        戻り値
+        - y_pred: y_pred: X のデータに対する予測ラベル。
+          長さ N の 1 次元配列であり、各要素は予測されるクラスである。
         """
         y_pred = np.zeros(X.shape[0])
         ###########################################################################
         # TODO:                                                                   #
         # Implement this method. Store the predicted labels in y_pred.            #
+        # ======================================================================= #
+        # このメソッドを実装する。予測されたラベルを y_pred に格納します。             #
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        # 計算されたスコアの中から最も高いスコアを持つクラスのインデックスを選択
+        y_pred = np.argmax(X.dot(self.W), axis=1)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return y_pred
