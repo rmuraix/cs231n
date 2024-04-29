@@ -47,13 +47,24 @@ def softmax_loss_naive(W, X, y, reg):
     # here, it is easy to run into numeric instability. Don't forget the        #
     # regularization!                                                           #
     # ===========================================================================#
-    # TODO: ソフトマックス損失とその勾配を明示的ループを使って計算する。        #
-    # 損失はlossに、勾配はdWに格納する。ここで注意しないと、                    #
-    # 数値が不安定になりやすい。正則化を忘れないでください！                    #
+    # TODO: ソフトマックス損失とその勾配を明示的ループを使って計算する。
+    # 損失はlossに、勾配はdWに格納する。ここで注意しないと、
+    # 数値が不安定になりやすい。正則化を忘れないでください！
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    num_train = X.shape[0]  # num samples
+
+    for i in range(num_train):
+        y_hat = X[i].dot(W)  # raw scores vector
+        y_exp = np.exp(y_hat - y_hat.max())  # numerically stable exponent vector
+        softmax = y_exp / y_exp.sum()  # pure softmax for each score
+        loss -= np.log(softmax[y[i]])  # append cross-entropy
+        softmax[y[i]] -= 1  # update for gradient
+        dW += np.outer(X[i], softmax)  # gradient
+
+    loss = loss / num_train + reg * np.sum(W**2)  # average loss and regularize
+    dW = dW / num_train + 2 * reg * W  # finish calculating gradient
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -75,10 +86,24 @@ def softmax_loss_vectorized(W, X, y, reg):
     # Store the loss in loss and the gradient in dW. If you are not careful     #
     # here, it is easy to run into numeric instability. Don't forget the        #
     # regularization!                                                           #
+    # ========================================================================= #
+    # TODO: 明示的なループを使わずに、ソフトマックス損失とその勾配を計算する
+    # 損失はlossに、勾配はdWに格納する。ここで注意しないと、数値が不安定になりやすい。
+    # 正則化を忘れないでください！
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    num_train = X.shape[0]
+    Y_hat = X @ W  # raw scores matrix
+
+    P = np.exp(Y_hat - Y_hat.max())  # numerically stable exponents
+    P /= P.sum(axis=1, keepdims=True)  # row-wise probabilities (softmax)
+
+    loss = -np.log(P[range(num_train), y]).sum()  # sum cross entropies as loss
+    loss = loss / num_train + reg * np.sum(W**2)  # average loss and regularize
+
+    P[range(num_train), y] -= 1  # update P for gradient
+    dW = X.T @ P / num_train + 2 * reg * W  # calculate gradient
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
