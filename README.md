@@ -23,6 +23,12 @@ poetry run ruff format .
 # and remove metadata from *.ipynb When you commit.
 pre-commit install
 ```
+
+## References
+
+- [Course page](https://cs231n.stanford.edu/index.html)
+- [Assignments](https://cs231n.stanford.edu/assignments.html)
+
 ## Contributing
 
 Your contribution is always welcome. Please read [Contributing Guide](https://github.com/rmuraix/.github/blob/main/.github/CONTRIBUTING.md).
