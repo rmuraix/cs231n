@@ -1,6 +1,7 @@
 from builtins import range
-import numpy as np
 from random import shuffle
+
+import numpy as np
 from past.builtins import xrange
 
 
@@ -46,25 +47,38 @@ def softmax_loss_naive(W, X, y, reg):
     # Store the loss in loss and the gradient in dW. If you are not careful     #
     # here, it is easy to run into numeric instability. Don't forget the        #
     # regularization!                                                           #
-    # ===========================================================================#
+    # ========================================================================= #
     # TODO: ソフトマックス損失とその勾配を明示的ループを使って計算する。
     # 損失はlossに、勾配はdWに格納する。ここで注意しないと、
     # 数値が不安定になりやすい。正則化を忘れないでください！
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    num_train = X.shape[0]  # num samples
+    # データの数
+    num_train = X.shape[0]
 
     for i in range(num_train):
-        y_hat = X[i].dot(W)  # raw scores vector
-        y_exp = np.exp(y_hat - y_hat.max())  # numerically stable exponent vector
-        softmax = y_exp / y_exp.sum()  # pure softmax for each score
-        loss -= np.log(softmax[y[i]])  # append cross-entropy
-        softmax[y[i]] -= 1  # update for gradient
-        dW += np.outer(X[i], softmax)  # gradient
+        # 生のスコアベクトル
+        y_hat = X[i].dot(W)
 
-    loss = loss / num_train + reg * np.sum(W**2)  # average loss and regularize
-    dW = dW / num_train + 2 * reg * W  # finish calculating gradient
+        # 数値的に安定した指数ベクトル
+        y_exp = np.exp(y_hat - y_hat.max())
+
+        # 各スコアに対する純粋なソフトマックス
+        softmax = y_exp / y_exp.sum()
+
+        # クロスエントロピーの追加
+        loss -= np.log(softmax[y[i]])
+
+        # 勾配の更新
+        # np.outer()は行列の外積を計算する
+        softmax[y[i]] -= 1
+        dW += np.outer(X[i], softmax)
+
+    # 損失の平均化と正則化
+    loss = loss / num_train + reg * np.sum(W**2)
+    # 勾配の平均化と正則化
+    dW = dW / num_train + 2 * reg * W
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -94,16 +108,27 @@ def softmax_loss_vectorized(W, X, y, reg):
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     num_train = X.shape[0]
-    Y_hat = X @ W  # raw scores matrix
 
-    P = np.exp(Y_hat - Y_hat.max())  # numerically stable exponents
-    P /= P.sum(axis=1, keepdims=True)  # row-wise probabilities (softmax)
+    # 生のスコアベクトル
+    Y_hat = X @ W
 
-    loss = -np.log(P[range(num_train), y]).sum()  # sum cross entropies as loss
-    loss = loss / num_train + reg * np.sum(W**2)  # average loss and regularize
+    # 数値的に安定した指数ベクトル
+    P = np.exp(Y_hat - Y_hat.max())
 
-    P[range(num_train), y] -= 1  # update P for gradient
-    dW = X.T @ P / num_train + 2 * reg * W  # calculate gradient
+    # 行ごとの確率(ソフトマックス)
+    P /= P.sum(axis=1, keepdims=True)
+
+    # 損失としてのクロス・エントロピーの和
+    loss = -np.log(P[range(num_train), y]).sum()
+
+    # 損失の平均化と正則化
+    loss = loss / num_train + reg * np.sum(W**2)
+
+    # Pを勾配のために更新
+    P[range(num_train), y] -= 1
+
+    # 勾配の計算
+    dW = X.T @ P / num_train + 2 * reg * W
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
