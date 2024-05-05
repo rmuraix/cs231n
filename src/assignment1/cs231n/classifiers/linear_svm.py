@@ -83,17 +83,20 @@ def svm_loss_naive(W, X, y, reg):
     # it may be simpler to compute the derivative at the same time that the     #
     # loss is being computed. As a result you may need to modify some of the    #
     # code above to compute the gradient.                                       #
-    # ---------------------------------------------------------------------------#
-    # 損失関数の勾配を計算し、dWに格納する。                                       #
-    # 最初に損失を計算してから導関数を計算するよりも                                #
-    # 損失計算と同時に導関数を計算する方が簡単かもしれません。その結果、              #
-    # 勾配を計算するために上記のコードの一部を修正する必要があるかもしれません。       #
+    # ------------------------------------------------------------------------- #
+    # 損失関数の勾配を計算し、dWに格納する。
+    # 最初に損失を計算してから導関数を計算するよりも
+    # 損失計算と同時に導関数を計算する方が簡単かもしれません。その結果、
+    # 勾配を計算するために上記のコードの一部を修正する必要があるかもしれません。
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    dW /= num_train  # 平均勾配を取得
+    # 平均勾配を取得
+    dW /= num_train
+
+    # 正則化項の勾配を加える
     # L2正則化（L2正則化項の微分が2 * W)
-    dW += 2 * reg * W  # 正則化項の勾配を加える
+    dW += 2 * reg * W
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -114,16 +117,22 @@ def svm_loss_vectorized(W, X, y, reg):
     # Implement a vectorized version of the structured SVM loss, storing the    #
     # result in loss.                                                           #
     # ------------------------------------------------------------------------- #
-    # 構造化SVM損失のベクトル化バージョンを実装し、結果をlossに格納する。            #
+    # 構造化SVM損失のベクトル化バージョンを実装し、結果をlossに格納する。
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    N = len(y)  # number of samples
-    Y_hat = X.dot(W)  # raw scores matrix
+    # サンプル数
+    N = len(y)
 
-    y_hat_true = Y_hat[range(N), y][:, np.newaxis]  # scores for true labels
-    margins = np.maximum(0, Y_hat - y_hat_true + 1)  # margin for each score
-    loss = margins.sum() / N - 1 + reg * np.sum(W**2)  # regularized loss
+    scores = X.dot(W)
+
+    # 正解ラベルのスコア
+    scores_true = scores[range(N), y][:, np.newaxis]
+    # 各スコアに対するマージン
+    margins = np.maximum(0, scores - scores_true + 1)
+    # L2正則化された損失
+    # N-1 は正解ラベルのスコアを除外するため
+    loss = margins.sum() / N - 1 + reg * np.sum(W**2)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -136,16 +145,26 @@ def svm_loss_vectorized(W, X, y, reg):
     # to reuse some of the intermediate values that you used to compute the     #
     # loss.                                                                     #
     # ------------------------------------------------------------------------- #
-    # 構造化SVM損失の勾配のベクトル化バージョンを実装し、結果をdWに格納する。         #
-    #                                                                           #
-    # ヒント：ゼロから勾配を計算する代わりに、損失を計算するために                   #
-    # 使用したいくつかの中間値を再利用すると、勾配の計算が簡単になるかもしれません。   #
+    # 構造化SVM損失の勾配のベクトル化バージョンを実装し、結果をdWに格納する。
+    #
+    # ヒント：ゼロから勾配を計算する代わりに、損失を計算するために
+    # 使用したいくつかの中間値を再利用すると、勾配の計算が簡単になるかもしれません。
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    dW = (margins > 0).astype(int)  # initial gradient with respect to Y_hat
-    dW[range(N), y] -= dW.sum(axis=1)  # update gradient to include correct labels
-    dW = X.T @ dW / N + 2 * reg * W  # gradient with respect to W
+    # スコアに対する初期勾配
+    # マージンが0より大きい場合は1、それ以外は0
+    dW = (margins > 0).astype(int)
+
+    # 正解ラベルを含むように勾配を更新
+
+    # 各サンプルの正解クラスに対応するdWの要素から、
+    # そのサンプルの全クラスにわたる勾配の合計を引く
+    # これにより、正解クラスのスコアが他のクラスのスコアよりも大きくなるように
+    # 勾配が調整される。
+    dW[range(N), y] -= dW.sum(axis=1)
+    # Wに対する勾配
+    dW = X.T @ dW / N + 2 * reg * W
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
