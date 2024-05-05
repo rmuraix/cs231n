@@ -6,7 +6,7 @@ My personal notebooks for [CS231n](https://cs231n.stanford.edu/).
 
 ## Running Locally
 
-If you have Docker installed, you can use devcontainer. Otherwise, the following is required.  
+If you have Docker installed, you can use devcontainer. Otherwise, the following are required.  
 
 - OS that supports shell scripts
 - Python3
