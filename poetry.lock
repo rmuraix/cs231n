@@ -872,13 +872,13 @@ traitlets = "*"
 
 [[package]]
 name = "nbdev"
-version = "2.3.15"
+version = "2.3.20"
 description = "Create delightful software with Jupyter Notebooks"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "nbdev-2.3.15-py3-none-any.whl", hash = "sha256:a07947406a8d3ee94741b44fc207e604cef4c9a750588cd5e5bcda27877f0262"},
-    {file = "nbdev-2.3.15.tar.gz", hash = "sha256:537cceca20cff6565f3f9df4ec03a3ef841a0612bbfa19523bd9b399482fa5df"},
+    {file = "nbdev-2.3.20-py3-none-any.whl", hash = "sha256:41c6939d71af7823a49c549bff62c168be3a2c45ed6281a2d9482c875540a707"},
+    {file = "nbdev-2.3.20.tar.gz", hash = "sha256:b41ad6746f278cd43343791cd004debb74e83f7e207663812a3da3701d17f3ef"},
 ]
 
 [package.dependencies]
