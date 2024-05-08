@@ -123,10 +123,10 @@ def svm_loss_vectorized(W, X, y, reg):
 
     # サンプル数
     N = len(y)
-
+    # スコア(N, C)
     scores = X.dot(W)
 
-    # 正解ラベルのスコア
+    # 正解ラベルのスコア(N, 1)
     scores_true = scores[range(N), y][:, np.newaxis]
     # 各スコアに対するマージン
     margins = np.maximum(0, scores - scores_true + 1)
