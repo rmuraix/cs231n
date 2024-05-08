@@ -1,8 +1,6 @@
 {
     "name": "cs231n-py3-cpu",
-	"build": {
-        "dockerfile": "./Dockerfile"
-    },
+	"image": "python:3.10.14-slim-bullseye",
     "containerEnv": {
 		"TZ": "Asia/Tokyo"
 	},
