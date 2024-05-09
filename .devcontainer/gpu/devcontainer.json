@@ -23,7 +23,7 @@
             "userGid": "automatic"
         }
 	},
-	"postCreateCommand": "poetry install",
+	"postStartCommand": "poetry install --with gpu",
 	"remoteUser": "vscode",
 	"customizations": {
 		"vscode": {
