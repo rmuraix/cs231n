@@ -12,6 +12,16 @@ def affine_relu_forward(x, w, b):
     Returns a tuple of:
     - out: Output from the ReLU
     - cache: Object to give to the backward pass
+
+    アフィン変換に続いてReLUを行う便利なレイヤ
+
+    入力
+    - x: アフィン層への入力
+    - w, b: アフィン層の重み
+
+    のタプルを返す：
+    - out: ReLUからの出力
+    - キャッシュ： バックワードパスに渡すオブジェクト
     """
     a, fc_cache = affine_forward(x, w, b)
     out, relu_cache = relu_forward(a)

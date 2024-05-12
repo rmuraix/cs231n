@@ -1,11 +1,11 @@
-from __future__ import print_function, division
+from __future__ import division, print_function
+
 from future import standard_library
 
 standard_library.install_aliases()
-from builtins import range
-from builtins import object
 import os
 import pickle as pickle
+from builtins import object, range
 
 import numpy as np
 
@@ -78,6 +78,66 @@ class Solver(object):
       - loss: Scalar giving the loss
       - grads: Dictionary with the same keys as self.params mapping parameter
         names to gradients of the loss with respect to those parameters.
+
+    ソルバーは、分類モデルの学習に必要なすべてのロジックをカプセル化する。
+    をカプセル化する。ソルバーは確率的勾配降下を実行します。
+    を実行します。
+
+    ソルバーは訓練データと検証データの両方とラベルを受け取ることができます。
+    定期的に分類精度をチェックすることができます。
+
+    モデルを学習するには、まずソルバーのインスタンスを作成します。
+    モデル、データセット、さまざまなオプション（学習率、バッチサイズなど）をコンストラクタに渡す。
+    コンストラクタに渡す。その後、train()メソッドを呼び出して最適化手順を実行し、モデルを学習します。。
+
+    train()メソッドが返された後、model.paramsには検証セットで最も良い結果を出したパラメータが格納されます。
+    が含まれます。
+    さらに、インスタンス変数solver.loss_historyには、トレーニング中に発生したすべての損失と
+    インスタンス変数solver.train_acc_historyとsolver.val_acc_historyには、トレーニング中に発生したすべての損失のリストが格納されます。
+    インスタンス変数solver.train_acc_historyとsolver.val_acc_historyは、各エポックにおける訓練セットと検証セットでのモデルの精度のリストになります。
+
+    例えば、次のようになります:
+    data = {
+      'X_train': # training data
+      'y_train': # training labels
+      'X_val': # validation data
+      'y_val': # validation labels
+    }
+    model = MyAwesomeModel(hidden_size=100, reg=10)
+    solver = Solver(model, data,
+                    update_rule='sgd',
+                    optim_config={
+                      'learning_rate': 1e-4,
+                    },
+                    lr_decay=0.95,
+                    num_epochs=5, batch_size=200,
+                    print_every=100)
+    solver.train()
+
+    ソルバーは、以下のAPIに準拠しなければならないモデルオブジェクト上で動作する:
+
+    - model.paramsは、文字列のパラメータ名をパラメータ値を含むnumpy
+      配列にマッピングした辞書でなければならない。
+
+    - model.loss(X,y)は、訓練時間の損失と勾配を計算する関数でなければなりません。
+      勾配を計算する関数でなければなりません。
+      を計算する関数でなければなりません：
+
+      入力
+      - X: 入力： X: 形状(N, d_1, ..., d_k)の入力データのミニバッチを与える配列。
+      - y: y[i]はX[i]のラベルである。
+        X[i]に対するラベル。
+
+      戻り値：
+      y が None の場合、テストタイムフォワードパスを実行し、リターンする：
+      - のスコアを返す： X の分類スコアを与える shape (N, C) の配列。
+        scores[i, c] は X[i] に対するクラス c のスコアを与える。
+
+      y が None でない場合、訓練時間のフォワードパスとバックワードパスを実行し、次のタプルを返す。
+      のタプルを返す：
+      - loss: 損失を与えるスカラー
+      - grads: パラメータ
+        の名前を、それらのパラメータに対する損失の勾配にマッピングする。
     """
 
     def __init__(self, model, data, **kwargs):
@@ -114,6 +174,37 @@ class Solver(object):
           accuracy; default is None, which uses the entire validation set.
         - checkpoint_name: If not None, then save model checkpoints here every
           epoch.
+
+        新しいソルバー・インスタンスを構築する。
+
+        必要な引数
+        - モデル： 上記のAPIに準拠したモデルオブジェクト。
+        - データ： トレーニングデータと検証データの辞書：
+          'X_train': 'X_train': 訓練画像の配列、形状 (N_train, d_1, ..., d_k)
+          'X_val': 配列，検証画像の形状 (N_val, d_1, ..., d_k).
+          'y_train': 配列，形状 (N_train,).
+          'y_val': 配列，検証画像のラベルの形状 (N_val,)
+
+        オプションの引数：
+        - update_rule: optim.pyの更新ルールの名前を指定する文字列。
+          デフォルトは 'sgd' です。
+        - optim_config: 選択された更新ルールに渡されるハイパーパラメータを含む辞書。
+          ハイパーパラメータを含む辞書です。各更新ルールには異なる
+          (optim.pyを参照)ですが、全ての更新ルールに'learning_rate'パラメータが必要です。
+        - lr_decay: 学習率の減衰を表すスカラーです。
+          各エポックの後、学習率にこの値が掛けられる。
+        - batch_size: 学習時の損失と勾配の計算に使われるミニバッチのサイズ。
+          の計算に使用するミニバッチのサイズ。
+        - num_epochs: 学習中に実行するエポック数。
+        - print_every: 整数。
+          print_every反復ごとにトレーニングの損失が表示される。
+        - verbose: ブール値; falseに設定すると、トレーニング中の出力は表示されない。
+          を出力しない。
+        - num_train_samples: トレーニングの精度をチェックするために使用するトレーニングサンプルの数。
+          デフォルトは 1000; None に設定するとトレーニングセット全体を使用する。
+        - num_val_samples: 値
+          デフォルトは None で、検証セット全体を使用します。
+        - checkpoint_name: Noneでない場合、エポック毎にモデルのチェックポイントを保存します。
         """
         self.model = model
         self.X_train = data["X_train"]
@@ -226,6 +317,20 @@ class Solver(object):
         Returns:
         - acc: Scalar giving the fraction of instances that were correctly
           classified by the model.
+
+        提供されたデータでモデルの精度をチェックする。
+
+        入力
+        - X: データの配列、形状は (N, d_1, ..., d_k)
+        - y: ラベルの配列, 形状は (N,).
+        - num_samples: Noneでない場合、データをサブサンプリングし、num_samples個のデータに対してのみモデルをテストする
+          num_samples データポイントに対してのみモデルをテストする。
+        - batch_size: Xとyをこのサイズのバッチに分割する。
+          メモリを使いすぎないようにする。
+
+        戻り値
+        - acc: モデルによって正しく分類されたインスタンスの割合を示すスカラー。
+          インスタンスの割合を示すスカラー。
         """
 
         # Maybe subsample the data

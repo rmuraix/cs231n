@@ -1,4 +1,5 @@
 from builtins import range
+
 import numpy as np
 
 
@@ -19,6 +20,22 @@ def affine_forward(x, w, b):
     Returns a tuple of:
     - out: output, of shape (N, M)
     - cache: (x, w, b)
+
+    アフィン（完全連結）層のフォワードパスを計算する。
+
+    入力 x は形状 (N, d_1, ..., d_k) を持ち、N 個のミニバッチを含む。
+    のミニバッチを含み、各例 x[i]は形状(d_1, ..., d_k)を持つ。我々は
+    各入力をD = d_1 * ... * d_kの次元のベクトルに再形成する。* d_k、そして
+    次元の出力ベクトルに変換する。
+
+    入力
+    - x: (N, d_1, ..., d_k)の入力データを含むnumpy配列。
+    - w: 重みを格納するnumpy配列。
+    - b: バイアスを表すnumpy配列，形状は (M,)
+
+    のタプルを返す：
+    - out: 形状 (N, M) の出力。
+    - キャッシュ： (x, w, b)
     """
     out = None
     ###########################################################################
@@ -27,7 +44,8 @@ def affine_forward(x, w, b):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    x_reshaped = x.reshape(x.shape[0], -1)
+    out = x_reshaped @ w + b
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -52,6 +70,20 @@ def affine_backward(dout, cache):
     - dx: Gradient with respect to x, of shape (N, d1, ..., d_k)
     - dw: Gradient with respect to w, of shape (D, M)
     - db: Gradient with respect to b, of shape (M,)
+
+    アフィン層のバックワードパスを計算する。
+
+    入力
+    - dout: 上流導関数, 形状は (N, M)
+    - キャッシュ： のタプル：
+      - x: 入力データ、形状は (N, d_1, ... d_k)
+      - w: 重み、形状は (D, M)
+      - b: バイアス, 形状は (M,)
+
+    のタプルを返す：
+    - dx: dx: xに対する勾配, 形状 (N, d1, ..., d_k)
+    - dw: 形状 (D, M) の w に関する勾配
+    - db: 形状(M,)のbに関する勾配
     """
     x, w, b = cache
     dx, dw, db = None, None, None
@@ -60,7 +92,10 @@ def affine_backward(dout, cache):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    x_reshaped = x.reshape(x.shape[0], -1)
+    dx = (dout @ w.T).reshape(x.shape[0], *x.shape[1:])
+    dw = x_reshaped.T @ dout
+    db = dout.sum(axis=0)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -79,6 +114,15 @@ def relu_forward(x):
     Returns a tuple of:
     - out: Output, of the same shape as x
     - cache: x
+
+    整流された線形ユニット(ReLUs)のレイヤーのフォワードパスを計算する。
+
+    入力
+    - x: 任意の形状の入力
+
+    のタプルを返す：
+    - out: x と同じ形の出力。
+    - キャッシュ: x
     """
     out = None
     ###########################################################################
@@ -86,7 +130,7 @@ def relu_forward(x):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    out = np.maximum(0, x)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -106,6 +150,15 @@ def relu_backward(dout, cache):
 
     Returns:
     - dx: Gradient with respect to x
+
+    整流された線形ユニット(ReLUs)のレイヤーのバックワードパスを計算する。
+
+    入力
+    - dout: 任意の形状の上流導関数
+    - キャッシュ： 入力 x, dout と同じ形状
+
+    戻り値
+    - dx: x に対する勾配
     """
     dx, x = None, cache
     ###########################################################################
@@ -113,7 +166,7 @@ def relu_backward(dout, cache):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    dx = dout * (x > 0)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -772,7 +825,18 @@ def svm_loss(x, y):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    # number of samples
+    N = len(y)
+
+    # scores for true labels
+    x_true = x[range(N), y][:, None]
+
+    # margin for each score
+    margins = np.maximum(0, x - x_true + 1)
+
+    loss = margins.sum() / N - 1
+    dx = (margins > 0).astype(float) / N
+    dx[range(N), y] -= dx.sum(axis=1)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -801,8 +865,20 @@ def softmax_loss(x, y):
     # TODO: Copy over your solution from A1.
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    # number of samples
+    N = len(y)
 
-    pass
+    # numerically stable exponents
+    P = np.exp(x - x.max(axis=1, keepdims=True))
+
+    # row-wise probabilities (softmax)
+    P /= P.sum(axis=1, keepdims=True)
+
+    # sum cross entropies as loss
+    loss = -np.log(P[range(N), y]).sum() / N
+
+    P[range(N), y] -= 1
+    dx = P / N
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
