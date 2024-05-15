@@ -1,10 +1,10 @@
 from __future__ import print_function
-from builtins import zip
-from builtins import range
-from past.builtins import xrange
+
+from builtins import range, zip
 
 import matplotlib
 import numpy as np
+from past.builtins import xrange
 from scipy.ndimage import uniform_filter
 
 
@@ -25,6 +25,22 @@ def extract_features(imgs, feature_fns, verbose=False):
     Returns:
     An array of shape (N, F_1 + ... + F_k) where each column is the concatenation
     of all features for a single image.
+
+    画像のピクセルデータと、単一画像に対して操作可能ないくつかの特徴関数が与えられたとする。
+    の特徴ベクトルを連結し、すべての画像の特徴ベクトルを
+    各画像の特徴ベクトルを連結し、全画像の特徴を1つの行列に格納する
+    に格納する．
+
+    入力
+    - imgs: N x H x W x C の配列、N 個の画像のピクセルデータ．
+    - feature_fns: k 個の特徴関数のリスト. i番目の特徴関数は
+      の（1次元）配列を返す。
+      長さ F_i の（1次元）配列を返す。
+    - verbose: ブール値; true の場合、進捗状況を表示する。
+
+    戻り値
+    戻り値: 形状 (N, F_1 + ... + F_k) の配列。
+    の配列．
     """
     num_images = imgs.shape[0]
     if num_images == 0:
