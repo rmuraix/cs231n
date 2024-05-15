@@ -34,6 +34,9 @@ optional = true
 torch = "^2.3.0"
 torchvision = "^0.18.0"
 
+[tool.ruff]
+extend-include = ["*.ipynb"]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
