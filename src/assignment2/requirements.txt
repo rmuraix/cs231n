@@ -21,7 +21,7 @@ ipywidgets==7.4.2
 imageio==2.8.0
 jedi==0.13.3
 Jinja2==2.10
-jsonschema==3.0.1
+jsonschema==3.0.2
 jupyter==1.0.0
 jupyter-client==5.2.4
 jupyter-console==6.0.0
