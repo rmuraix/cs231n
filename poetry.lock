@@ -652,27 +652,6 @@ test = ["pickleshare", "pytest", "pytest-asyncio (<0.22)", "testpath"]
 test-extra = ["curio", "ipython[test]", "matplotlib (!=3.2.0)", "nbformat", "numpy (>=1.23)", "pandas", "trio"]
 
 [[package]]
-name = "ipywidgets"
-version = "8.0.4"
-description = "Jupyter interactive widgets"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "ipywidgets-8.0.4-py3-none-any.whl", hash = "sha256:ebb195e743b16c3947fe8827190fb87b4d00979c0fbf685afe4d2c4927059fa1"},
-    {file = "ipywidgets-8.0.4.tar.gz", hash = "sha256:c0005a77a47d77889cafed892b58e33b4a2a96712154404c6548ec22272811ea"},
-]
-
-[package.dependencies]
-ipykernel = ">=4.5.1"
-ipython = ">=6.1.0"
-jupyterlab-widgets = ">=3.0,<4.0"
-traitlets = ">=4.3.1"
-widgetsnbextension = ">=4.0,<5.0"
-
-[package.extras]
-test = ["jsonschema", "pytest (>=3.6.0)", "pytest-cov", "pytz"]
-
-[[package]]
 name = "jedi"
 version = "0.19.1"
 description = "An autocompletion tool for Python that can be used for text editors."
@@ -749,17 +728,6 @@ traitlets = ">=5.3"
 [package.extras]
 docs = ["myst-parser", "pydata-sphinx-theme", "sphinx-autodoc-typehints", "sphinxcontrib-github-alt", "sphinxcontrib-spelling", "traitlets"]
 test = ["ipykernel", "pre-commit", "pytest (<8)", "pytest-cov", "pytest-timeout"]
-
-[[package]]
-name = "jupyterlab-widgets"
-version = "3.0.10"
-description = "Jupyter interactive widgets for JupyterLab"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "jupyterlab_widgets-3.0.10-py3-none-any.whl", hash = "sha256:dd61f3ae7a5a7f80299e14585ce6cf3d6925a96c9103c978eda293197730cb64"},
-    {file = "jupyterlab_widgets-3.0.10.tar.gz", hash = "sha256:04f2ac04976727e4f9d0fa91cdc2f1ab860f965e504c29dbd6a65c882c9d04c0"},
-]
 
 [[package]]
 name = "kiwisolver"
@@ -1042,13 +1010,13 @@ tests = ["pytest (>=4.6)"]
 
 [[package]]
 name = "nbdev"
-version = "2.3.20"
+version = "2.3.23"
 description = "Create delightful software with Jupyter Notebooks"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "nbdev-2.3.20-py3-none-any.whl", hash = "sha256:41c6939d71af7823a49c549bff62c168be3a2c45ed6281a2d9482c875540a707"},
-    {file = "nbdev-2.3.20.tar.gz", hash = "sha256:b41ad6746f278cd43343791cd004debb74e83f7e207663812a3da3701d17f3ef"},
+    {file = "nbdev-2.3.23-py3-none-any.whl", hash = "sha256:5ff84611953429971790ca7ba00aa46957305c40bf3c60aa23ad9320b26a72e1"},
+    {file = "nbdev-2.3.23.tar.gz", hash = "sha256:f876c61f22764d7eaa9c104f362bc556496b7fe31ad90337bbfd9aebb3717c8b"},
 ]
 
 [package.dependencies]
@@ -1057,13 +1025,12 @@ astunparse = "*"
 execnb = ">=0.1.4"
 fastcore = ">=1.5.27"
 ghapi = ">=1.0.3"
-ipywidgets = "<=8.0.4"
 packaging = "*"
 PyYAML = "*"
 watchdog = "*"
 
 [package.extras]
-dev = ["black", "jupyter", "matplotlib", "nbdev-numpy", "nbdev-stdlib", "pandas", "svg.py"]
+dev = ["black", "ipywidgets", "matplotlib", "nbclassic", "nbdev-numpy", "nbdev-stdlib", "pandas", "svg.py"]
 
 [[package]]
 name = "nest-asyncio"
@@ -2295,17 +2262,6 @@ files = [
 
 [package.extras]
 test = ["pytest (>=6.0.0)", "setuptools (>=65)"]
-
-[[package]]
-name = "widgetsnbextension"
-version = "4.0.10"
-description = "Jupyter interactive widgets for Jupyter Notebook"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "widgetsnbextension-4.0.10-py3-none-any.whl", hash = "sha256:d37c3724ec32d8c48400a435ecfa7d3e259995201fbefa37163124a9fcb393cc"},
-    {file = "widgetsnbextension-4.0.10.tar.gz", hash = "sha256:64196c5ff3b9a9183a8e699a4227fb0b7002f252c814098e66c4d1cd0644688f"},
-]
 
 [metadata]
 lock-version = "2.0"
