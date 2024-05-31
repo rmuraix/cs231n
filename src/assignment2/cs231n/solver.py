@@ -1,7 +1,5 @@
 from __future__ import print_function, division
-from future import standard_library
 
-standard_library.install_aliases()
 from builtins import range
 from builtins import object
 import os
@@ -18,7 +16,7 @@ class Solver(object):
     models. The Solver performs stochastic gradient descent using different
     update rules defined in optim.py.
 
-    The solver accepts both training and validataion data and labels so it can
+    The solver accepts both training and validation data and labels so it can
     periodically check classification accuracy on both training and validation
     data to watch out for overfitting.
 
