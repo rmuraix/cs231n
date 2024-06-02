@@ -825,7 +825,8 @@ def dropout_backward(dout, cache):
 
 
 def conv_forward_naive(x, w, b, conv_param):
-    """A naive implementation of the forward pass for a convolutional layer.
+    """
+    A naive implementation of the forward pass for a convolutional layer.
 
     The input consists of N data points, each with C channels, height H and
     width W. We convolve each input with F different filters, where each filter
@@ -849,34 +850,70 @@ def conv_forward_naive(x, w, b, conv_param):
       H' = 1 + (H + 2 * pad - HH) / stride
       W' = 1 + (W + 2 * pad - WW) / stride
     - cache: (x, w, b, conv_param)
+
+    畳み込み層のフォワードパスの素朴な実装。
+
+    入力はN個のデータ点からなり、それぞれ高さH、幅WのC個のチャンネルを持つ。
+    各入力をF個の異なるフィルターで畳み込む。
+    はすべてのC個のチャンネルにまたがり、高さHH、幅WWを持つ。
+
+    入力
+    - x: 形状の入力データ (N, C, H, W)
+    - w: 形状(F, C, HH, WW)のフィルター重み
+    - b: 形状 (F,) のバイアス。
+    - conv_param: 以下のキーを持つ辞書：
+      - stride'： 水平方向と垂直方向で隣接する受容野間のピクセル数。
+        水平方向と垂直方向の隣接する受容野間のピクセル数。
+      - pad'： pad': 入力をゼロパディングするために使用されるピクセル数。
+
+    パディングの際、'pad'ゼロは、入力の縦軸と横軸に沿って対称に(つまり左右均等に)配置されなければならない。
+    入力の縦軸と横軸に沿って対称に（つまり左右均等に）配置されなければならない。元の
+    を直接修正しないように注意すること。
+
+    のタプルを返す：
+    - out： 出力データ。形状は (N, F, H', W') で、H' と W' は次式で与えられる。
+      H' = 1 + (H + 2 * pad - HH) / stride
+      W' = 1 + (W + 2 * pad - WW) / stride
+    - キャッシュ: (x, w, b, conv_param)
     """
     out = None
     ###########################################################################
     # TODO: Implement the convolutional forward pass.                         #
     # Hint: you can use the function np.pad for padding.                      #
+    #                                                                         #
+    # 畳み込みのフォワードパスを実装する。
+    # ヒント：パディングには np.pad 関数を使用できます。
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    P1 = P2 = P3 = P4 = conv_param["pad"]  # padding: up = right = down = left
-    S1 = S2 = conv_param["stride"]  # stride:  up = down
-    N, C, HI, WI = x.shape  # input dims
-    F, _, HF, WF = w.shape  # filter dims
-    HO = 1 + (HI + P1 + P3 - HF) // S1  # output height
-    WO = 1 + (WI + P2 + P4 - WF) // S2  # output width
+    # パディング：上＝右＝下＝左
+    P1 = P2 = P3 = P4 = conv_param["pad"]
+    # ストライド：上＝下
+    S1 = S2 = conv_param["stride"]
+    # 入力の次元
+    N, C, HI, WI = x.shape
+    # フィルタの次元
+    F, _, HF, WF = w.shape
+    # 出力の高さ
+    HO = 1 + (HI + P1 + P3 - HF) // S1
+    # 出力の幅
+    WO = 1 + (WI + P2 + P4 - WF) // S2
 
-    # Helper function (warning: numpy version 1.20 or above is required for usage)
+    # ヘルパー関数 (警告: 使用には numpy バージョン 1.20 以上が必要)
     def to_fields(x):
         return np.lib.stride_tricks.sliding_window_view(x, (WF, HF, C, N))
 
-    w_row = w.reshape(F, -1)  # weights as rows
-    x_pad = np.pad(x, ((0, 0), (0, 0), (P1, P3), (P2, P4)), "constant")  # padded inputs
-    x_col = (
-        to_fields(x_pad.T).T[..., ::S1, ::S2].reshape(N, C * HF * WF, -1)
-    )  # inputs as cols
+    # ウェイトを行に
+    w_row = w.reshape(F, -1)
+    # パディングされた入力
+    x_pad = np.pad(x, ((0, 0), (0, 0), (P1, P3), (P2, P4)), "constant")
+    # 入力を列に
+    x_col = to_fields(x_pad.T).T[..., ::S1, ::S2].reshape(N, C * HF * WF, -1)
 
     out = (w_row @ x_col).reshape(N, F, HO, WO) + np.expand_dims(b, axis=(2, 1))
 
-    x = x_pad  # we will use padded version as well during backpropagation
+    # バックプロパゲーションでは、パディングされたバージョンも使用する。
+    x = x_pad
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -887,7 +924,8 @@ def conv_forward_naive(x, w, b, conv_param):
 
 
 def conv_backward_naive(dout, cache):
-    """A naive implementation of the backward pass for a convolutional layer.
+    """
+    A naive implementation of the backward pass for a convolutional layer.
 
     Inputs:
     - dout: Upstream derivatives.
@@ -897,41 +935,60 @@ def conv_backward_naive(dout, cache):
     - dx: Gradient with respect to x
     - dw: Gradient with respect to w
     - db: Gradient with respect to b
+
+    畳み込み層の後方パスの素朴な実装。
+
+    入力
+    - dout: 上流の微分。
+    - cache: conv_forward_naive と同様、 (x, w, b, conv_param) のタプル。
+
+    のタプルを返す：
+    - dx: x に対する勾配
+    - dw: w に対する勾配
+    - db: bに対する勾配
     """
     dx, dw, db = None, None, None
     ###########################################################################
     # TODO: Implement the convolutional backward pass.                        #
+    #                                                                         #
+    # 畳み込みバックワードパスを実装する。
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    # Helper function (warning: numpy 1.20+ is required)
+    # ヘルパー関数 (警告: numpy 1.20 以上が必要)
     to_fields = np.lib.stride_tricks.sliding_window_view
 
-    x_pad, w, b, conv_param = cache  # extract parameters from cache
-    S1 = S2 = conv_param["stride"]  # stride:  up = down
-    P1 = P2 = P3 = P4 = conv_param["pad"]  # padding: up = right = down = left
-    F, C, HF, WF = w.shape  # filter dims
-    N, _, HO, WO = dout.shape  # output dims
+    # キャッシュからパラメータを抽出
+    x_pad, w, b, conv_param = cache
+    # ストライド：上＝下
+    S1 = S2 = conv_param["stride"]
+    # パディング：上＝右＝下＝左
+    P1 = P2 = P3 = P4 = conv_param["pad"]
+    # フィルタの次元
+    F, C, HF, WF = w.shape
+    # 出力の次元
+    N, _, HO, WO = dout.shape
 
-    dout = np.insert(dout, [*range(1, HO)] * (S1 - 1), 0, axis=2)  # "missing" rows
-    dout = np.insert(dout, [*range(1, WO)] * (S2 - 1), 0, axis=3)  # "missing" columns
-    dout_pad = np.pad(
-        dout, ((0,), (0,), (HF - 1,), (WF - 1,)), "constant"
-    )  # for full convolution
+    # 「行方不明」の行
+    dout = np.insert(dout, [*range(1, HO)] * (S1 - 1), 0, axis=2)
+    # 「行方不明」の列
+    dout = np.insert(dout, [*range(1, WO)] * (S2 - 1), 0, axis=3)
+    # 完全畳み込み用
+    dout_pad = np.pad(dout, ((0,), (0,), (HF - 1,), (WF - 1,)), "constant")
 
-    x_fields = to_fields(
-        x_pad, (N, C, dout.shape[2], dout.shape[3])
-    )  # input local regions w.r.t. dout
-    dout_fields = to_fields(
-        dout_pad, (N, F, HF, WF)
-    )  # dout local regions w.r.t. filter
-    w_rot = np.rot90(w, 2, axes=(2, 3))  # rotated kernel (for convolution)
+    # doutに関する入力のフィールド
+    x_fields = to_fields(x_pad, (N, C, dout.shape[2], dout.shape[3]))
+    # filterに関するdoutのフィールド
+    dout_fields = to_fields(dout_pad, (N, F, HF, WF))
+    # 回転カーネル（畳み込み用）
+    w_rot = np.rot90(w, 2, axes=(2, 3))
 
-    db = np.einsum("ijkl->j", dout)  # sum over
-    dw = np.einsum("ijkl,mnopiqkl->jqop", dout, x_fields)  # correlate
-    dx = np.einsum("ijkl,mnopqikl->qjop", w_rot, dout_fields)[
-        ..., P1:-P3, P2:-P4
-    ]  # convolve
+    # 総和
+    db = np.einsum("ijkl->j", dout)
+    # 関連付ける
+    dw = np.einsum("ijkl,mnopiqkl->jqop", dout, x_fields)
+    # 畳み込み
+    dx = np.einsum("ijkl,mnopqikl->qjop", w_rot, dout_fields)[..., P1:-P3, P2:-P4]
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -941,7 +998,8 @@ def conv_backward_naive(dout, cache):
 
 
 def max_pool_forward_naive(x, pool_param):
-    """A naive implementation of the forward pass for a max-pooling layer.
+    """
+    A naive implementation of the forward pass for a max-pooling layer.
 
     Inputs:
     - x: Input data, of shape (N, C, H, W)
@@ -959,28 +1017,56 @@ def max_pool_forward_naive(x, pool_param):
       H' = 1 + (H - pool_height) / stride
       W' = 1 + (W - pool_width) / stride
     - cache: (x, pool_param)
+
+    マックスプーリング層のフォワードパスの素朴な実装。
+
+    入力
+    - x: 入力データ、形状は (N, C, H, W)
+    - pool_param: 以下のキーを持つ辞書：
+      - pool_height': 各プーリング領域の高さ
+      - pool_width': 各プーリング領域の幅
+      - 'stride': 隣接するプーリング領域間の距離
+
+    ここではパディングは必要ない：
+      - (H - pool_height) % stride == 0 と仮定できます。
+      - (W - pool_width) % stride == 0 と仮定します。
+
+    のタプルを返す：
+    - 出力： 出力データ。形状は (N, C, H', W') で、H' と W' は次式で与えられる。
+      H' = 1 + (H - pool_height) / stride
+      W' = 1 + (W - pool_width) / stride。
+    - cache: (x, pool_param)
     """
     out = None
     ###########################################################################
     # TODO: Implement the max-pooling forward pass                            #
+    #                                                                         #
+    # マックスプーリング・フォワードパスの実装
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    S1 = S2 = pool_param["stride"]  # stride: up = down
-    HP = pool_param["pool_height"]  # pool height
-    WP = pool_param["pool_width"]  # pool width
-    N, C, HI, WI = x.shape  # input dims
-    HO = 1 + (HI - HP) // S1  # output height
-    WO = 1 + (WI - WP) // S2  # output width
+    # パラメータを展開
+    # ストライド：上＝下
+    S1 = S2 = pool_param["stride"]
+    # プールの高さ
+    HP = pool_param["pool_height"]
+    # プールの幅
+    WP = pool_param["pool_width"]
+    # 入力の次元
+    N, C, HI, WI = x.shape
+    # 出力の高さ
+    HO = 1 + (HI - HP) // S1
+    # 出力の幅
+    WO = 1 + (WI - WP) // S2
 
-    # Helper function (warning: numpy version 1.20 or above is required for usage)
+    # ヘルパー関数 (警告: 使用には numpy バージョン 1.20 以上が必要です)
     def to_fields(x):
         return np.lib.stride_tricks.sliding_window_view(x, (WP, HP, C, N))
 
-    x_fields = (
-        to_fields(x.T).T[..., ::S1, ::S2].reshape(N, C, HP * WP, -1)
-    )  # input local regions
-    out = x_fields.max(axis=2).reshape(N, C, HO, WO)  # pooled output
+    # 入力のローカル領域
+    x_fields = to_fields(x.T).T[..., ::S1, ::S2].reshape(N, C, HP * WP, -1)
+    # プールされた出力
+    out = x_fields.max(axis=2).reshape(N, C, HO, WO)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -991,7 +1077,8 @@ def max_pool_forward_naive(x, pool_param):
 
 
 def max_pool_backward_naive(dout, cache):
-    """A naive implementation of the backward pass for a max-pooling layer.
+    """
+    A naive implementation of the backward pass for a max-pooling layer.
 
     Inputs:
     - dout: Upstream derivatives
@@ -999,30 +1086,52 @@ def max_pool_backward_naive(dout, cache):
 
     Returns:
     - dx: Gradient with respect to x
+
+    マックスプーリング層のバックワードパスの素朴な実装。
+
+    入力
+    - dout: アップストリーム微分
+    - cache: (x,pool_param)のタプル。
+
+    戻り値
+    - dx: x に対する勾配
     """
     dx = None
     ###########################################################################
     # TODO: Implement the max-pooling backward pass                           #
+    #                                                                         #
+    # マックスプーリングのバックワードパスを実装する
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    x, pool_param = cache  # expand cache
-    N, C, HO, WO = dout.shape  # get shape values
-    dx = np.zeros_like(x)  # init derivative
+    # パラメータを展開
+    x, pool_param = cache
+    N, C, HO, WO = dout.shape
+    # 初期の導関数
+    dx = np.zeros_like(x)
 
-    S1 = S2 = pool_param["stride"]  # stride: up = down
-    HP = pool_param["pool_height"]  # pool height
-    WP = pool_param["pool_width"]  # pool width
+    # ストライド：上＝下
+    S1 = S2 = pool_param["stride"]
+    # プールの高さ
+    HP = pool_param["pool_height"]
+    # プールの幅
+    WP = pool_param["pool_width"]
 
     for i in range(HO):
         for j in range(WO):
-            [ns, cs], h, w = np.indices((N, C)), i * S1, j * S2  # compact indexing
-            f = x[:, :, h : (h + HP), w : (w + WP)].reshape(
-                N, C, -1
-            )  # input local fields
-            # offsets for max vals
+            [ns, cs], h, w = (
+                np.indices(
+                    # コンパクトなインデックス
+                    (N, C)
+                ),
+                i * S1,
+                j * S2,
+            )
+            # 入力ローカルフィールド
+            f = x[:, :, h : (h + HP), w : (w + WP)].reshape(N, C, -1)
+            # 最大値のオフセット
             k, l = np.unravel_index(np.argmax(f, 2), (HP, WP))
-            # select areas to update
+            # 更新するエリアを選択する
             dx[ns, cs, h + k, w + l] += dout[ns, cs, i, j]
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -1033,7 +1142,8 @@ def max_pool_backward_naive(dout, cache):
 
 
 def spatial_batchnorm_forward(x, gamma, beta, bn_param):
-    """Computes the forward pass for spatial batch normalization.
+    """
+    Computes the forward pass for spatial batch normalization.
 
     Inputs:
     - x: Input data of shape (N, C, H, W)
@@ -1052,6 +1162,26 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
     Returns a tuple of:
     - out: Output data, of shape (N, C, H, W)
     - cache: Values needed for the backward pass
+
+    空間バッチ正規化のフォワード パスを計算します。
+
+    入力:
+    - x: 形状 (N, C, H, W) の入力データ
+    - gamma: 形状 (C,) のスケール パラメータ
+    - beta: 形状 (C,) のシフト パラメータ
+    - bn_param: 次のキーを持つ辞書:
+    - mode: 'train' または 'test'; 必須
+    - eps: 数値安定性の定数
+    - momentum: 実行平均 / 分散の定数。
+      momentum=0 は、古い情報が各時間ステップで完全に破棄されることを意味し、
+      momentum=1 は新しい情報が組み込まれないことを意味します。
+      momentum=0.9 のデフォルトは、ほとんどの状況で適切に機能します。
+    - running_mean: フィーチャの実行平均を示す形状 (D,) の配列
+    - running_var フィーチャの実行分散を示す形状 (D,) の配列
+
+    次のタプルを返します:
+    - out: 形状 (N、C、H、W) の出力データ
+    - cache: バックワード パスに必要な値
     """
     out, cache = None, None
 
@@ -1061,16 +1191,22 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
     # HINT: You can implement spatial batch normalization by calling the      #
     # vanilla version of batch normalization you implemented above.           #
     # Your implementation should be very short; ours is less than five lines. #
+    #                                                                         #
+    # 空間バッチ正規化のフォワード パスを実装します。
+    #
+    # ヒント: 上記で実装したバッチ正規化のバニラバージョンを呼び出すことで、
+    # 空間バッチ正規化を実装できます。
+    # あなたの実装は非常に短くなるはずです。私たちの実装は5行未満です。
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    N, C, H, W = x.shape  # input dims
-    # swap axes to use vanilla batchnorm
+    # 入力の次元
+    N, C, H, W = x.shape
+    # 軸を交換してバニラバッチノルムを使用する
     x = np.moveaxis(x, 1, -1).reshape(-1, C)
-    out, cache = batchnorm_forward(
-        x, gamma, beta, bn_param
-    )  # perform vanilla batchnorm
-    # swap back axes for the output
+    # バニラバッチノルムを実行する
+    out, cache = batchnorm_forward(x, gamma, beta, bn_param)
+    # 出力の軸を入れ替える
     out = np.moveaxis(out.reshape(N, H, W, C), -1, 1)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -1082,7 +1218,8 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
 
 
 def spatial_batchnorm_backward(dout, cache):
-    """Computes the backward pass for spatial batch normalization.
+    """
+    Computes the backward pass for spatial batch normalization.
 
     Inputs:
     - dout: Upstream derivatives, of shape (N, C, H, W)
@@ -1092,6 +1229,17 @@ def spatial_batchnorm_backward(dout, cache):
     - dx: Gradient with respect to inputs, of shape (N, C, H, W)
     - dgamma: Gradient with respect to scale parameter, of shape (C,)
     - dbeta: Gradient with respect to shift parameter, of shape (C,)
+
+    空間バッチ正規化の逆方向パスを計算します。
+
+    入力:
+    - dout: 上流導関数、形状 (N, C, H, W)
+    - cache: 順方向パスからの値
+
+    次のタプルを返します:
+    - dx: 入力に関する勾配、形状 (N, C, H, W)
+    - dgamma: スケール パラメータに関する勾配、形状 (C,)
+    - dbeta: シフト パラメータに関する勾配、形状 (C,)
     """
     dx, dgamma, dbeta = None, None, None
 
@@ -1101,19 +1249,23 @@ def spatial_batchnorm_backward(dout, cache):
     # HINT: You can implement spatial batch normalization by calling the      #
     # vanilla version of batch normalization you implemented above.           #
     # Your implementation should be very short; ours is less than five lines. #
+    #                                                                         #
+    # 空間バッチ正規化の逆方向パスを計算します。
+    #
+    # ヒント: 上記で実装したバッチ正規化のバニラバージョンを呼び出すことで、
+    # 空間バッチ正規化を実装できます。
+    # あなたの実装は非常に短くなるはずです。私たちの実装は5行未満です。
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    N, C, H, W = dout.shape  # upstream dims
-    dout = np.moveaxis(dout, 1, -1).reshape(
-        -1, C
-    )  # swap axes to use vanilla batchnorm backprop
-    dx, dgamma, dbeta = batchnorm_backward(
-        dout, cache
-    )  # perform vanilla batchnorm backprop
-    dx = np.moveaxis(
-        dx.reshape(N, H, W, C), -1, 1
-    )  # swap back axes for the gradient of dx
+    # アップストリームの次元
+    N, C, H, W = dout.shape
+    # 軸を交換してバニラのバッチノルムバックプロパゲーションを使用する
+    dout = np.moveaxis(dout, 1, -1).reshape(-1, C)
+    # バニラバッチノルムバックプロパゲーションを実行する
+    dx, dgamma, dbeta = batchnorm_backward(dout, cache)
+    # dxの勾配の軸を入れ替える
+    dx = np.moveaxis(dx.reshape(N, H, W, C), -1, 1)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -1124,7 +1276,8 @@ def spatial_batchnorm_backward(dout, cache):
 
 
 def spatial_groupnorm_forward(x, gamma, beta, G, gn_param):
-    """Computes the forward pass for spatial group normalization.
+    """
+    Computes the forward pass for spatial group normalization.
 
     In contrast to layer normalization, group normalization splits each entry in the data into G
     contiguous pieces, which it then normalizes independently. Per-feature shifting and scaling
@@ -1142,6 +1295,24 @@ def spatial_groupnorm_forward(x, gamma, beta, G, gn_param):
     Returns a tuple of:
     - out: Output data, of shape (N, C, H, W)
     - cache: Values needed for the backward pass
+
+    空間グループ正規化のフォワード パスを計算します。
+
+    レイヤー正規化とは対照的に、グループ正規化では、データの各エントリを G 個の連続した部分に分割し、
+    個別に正規化します。次に、バッチ正規化およびレイヤー正規化と同じ方法で、
+    フィーチャごとのシフトとスケーリングがデータに適用されます。
+
+    入力:
+    - x: 形状 (N、C、H、W) の入力データ
+    - gamma: 形状 (1、C、1、1) のスケール パラメーター
+    - beta: 形状 (1、C、1、1) のシフト パラメーター
+    - G: 分割するグループの整数数。C の約数である必要があります
+    - gn_param: 次のキーを持つ辞書:
+    - eps: 数値安定性のための定数
+
+    次のタプルを返します:
+    - out: 形状 (N、C、H、W) の出力データ
+    - cache: バックワード パスに必要な値
     """
     out, cache = None, None
     eps = gn_param.get("eps", 1e-5)
@@ -1151,29 +1322,36 @@ def spatial_groupnorm_forward(x, gamma, beta, G, gn_param):
     # In particular, think about how you could transform the matrix so that   #
     # the bulk of the code is similar to both train-time batch normalization  #
     # and layer normalization!                                                #
+    #                                                                         #
+    # 空間グループ正規化のフォワード パスを実装します。
+    # これはレイヤー正規化の実装と非常に似ています。
+    # 特に、どのようにして行列を変換して、
+    # コードの大部分がトレーニング時のバッチ正規化とレイヤー正規化の
+    # 両方と似ているかについて考えてみてください！
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    N, C, H, W = x.shape  # input dims
+    # 入力の次元
+    N, C, H, W = x.shape
+    # バッチ正規化メソッドを再利用するためのパラメータ
     ln_param = {
         "shape": (W, H, C, N),
         "axis": (0, 1, 3),
         **gn_param,
-    }  # params to reuse batchnorm method
+    }
 
-    x = x.reshape(N * G, -1)  # reshape x to use vanilla layernorm
-    gamma = np.tile(gamma, (N, 1, H, W)).reshape(
-        N * G, -1
-    )  # reshape gamma to use vanilla layernorm
-    beta = np.tile(beta, (N, 1, H, W)).reshape(
-        N * G, -1
-    )  # reshape beta to use vanilla layernorm
+    # x をバニラレイヤーノルムを使用するために再形成する
+    x = x.reshape(N * G, -1)
 
-    out, cache = layernorm_forward(
-        x, gamma, beta, ln_param
-    )  # perform vanilla layernorm
-    out = out.reshape(N, C, H, W)  # reshape back the output
-    cache = (G, cache)  # cache involves G
+    # ガンマとベータを再形成してバニラレイヤーノルムを使用する
+    gamma = np.tile(gamma, (N, 1, H, W)).reshape(N * G, -1)
+    beta = np.tile(beta, (N, 1, H, W)).reshape(N * G, -1)
+    out, cache = layernorm_forward(x, gamma, beta, ln_param)
+
+    # 出力の形状を元に戻す
+    out = out.reshape(N, C, H, W)
+    # キャッシュにはGが含まれる
+    cache = (G, cache)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -1183,7 +1361,8 @@ def spatial_groupnorm_forward(x, gamma, beta, G, gn_param):
 
 
 def spatial_groupnorm_backward(dout, cache):
-    """Computes the backward pass for spatial group normalization.
+    """
+    Computes the backward pass for spatial group normalization.
 
     Inputs:
     - dout: Upstream derivatives, of shape (N, C, H, W)
@@ -1193,25 +1372,41 @@ def spatial_groupnorm_backward(dout, cache):
     - dx: Gradient with respect to inputs, of shape (N, C, H, W)
     - dgamma: Gradient with respect to scale parameter, of shape (1, C, 1, 1)
     - dbeta: Gradient with respect to shift parameter, of shape (1, C, 1, 1)
+
+    空間グループ正規化の逆方向パスを計算します。
+
+    入力:
+    - dout: 上流導関数、形状 (N、C、H、W)
+    - cache: 順方向パスからの値
+
+    次のタプルを返します:
+    - dx: 入力に関する勾配、形状 (N、C、H、W)
+    - dgamma: スケール パラメータに関する勾配、形状 (1、C、1、1)
+    - dbeta: シフト パラメータに関する勾配、形状 (1、C、1、1)
     """
     dx, dgamma, dbeta = None, None, None
 
     ###########################################################################
     # TODO: Implement the backward pass for spatial group normalization.      #
     # This will be extremely similar to the layer norm implementation.        #
+    #                                                                         #
+    # 空間グループ正規化の逆方向パスを計算します。
+    # これはレイヤー正規化の実装と非常に似ています。
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    G, cache = cache  # expand cache
-    N, C, H, W = dout.shape  # upstream dims
-    dout = dout.reshape(N * G, -1)  # reshape to use vanilla layernorm backprop
-
-    dx, dgamma, dbeta = layernorm_backward(
-        dout, cache
-    )  # perform vanilla layernorm backprop
-    dx = dx.reshape(N, C, H, W)  # reshape back dx
-    dbeta = dbeta[None, :, None, None]  # resape back dbeta
-    dgamma = dgamma[None, :, None, None]  # reshape back dgamma
+    # キャッシュを展開
+    G, cache = cache
+    # アップストリームの次元
+    N, C, H, W = dout.shape
+    # バニラレイヤーノルムバックプロパゲーションを使用するために再形成する
+    dout = dout.reshape(N * G, -1)
+    # バニラレイヤーノルムバックプロパゲーションを実行する
+    dx, dgamma, dbeta = layernorm_backward(dout, cache)
+    # dx、dbeta、dgammaの形状を元に戻す
+    dx = dx.reshape(N, C, H, W)
+    dbeta = dbeta[None, :, None, None]
+    dgamma = dgamma[None, :, None, None]
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
