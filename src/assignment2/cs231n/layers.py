@@ -1,9 +1,11 @@
 from builtins import range
+
 import numpy as np
 
 
 def affine_forward(x, w, b):
-    """Computes the forward pass for an affine (fully connected) layer.
+    """
+    Computes the forward pass for an affine (fully connected) layer.
 
     The input x has shape (N, d_1, ..., d_k) and contains a minibatch of N
     examples, where each example x[i] has shape (d_1, ..., d_k). We will
@@ -17,6 +19,22 @@ def affine_forward(x, w, b):
 
     Returns a tuple of:
     - out: output, of shape (N, M)
+    - cache: (x, w, b)
+
+    アフィン（完全接続）層のフォワードパスを計算する。
+
+    入力 x は形状 (N, d_1, ..., d_k) を持ち、N 個のミニバッチを含む。
+    のミニバッチを含み、各例 x[i]は形状(d_1, ..., d_k)を持つ。我々は
+    各入力をD = d_1 * ... * d_kの次元のベクトルに再形成する。* d_k、そして
+    次元の出力ベクトルに変換する。
+
+    入力
+    - x: (N, d_1, ..., d_k)の入力データを含むnumpy配列。
+    - w: 重みを格納するnumpy配列。
+    - b: バイアスを表すnumpy配列,形状は (M,)
+
+    のタプルを返す：
+    - out: 形状 (N, M) の出力。
     - cache: (x, w, b)
     """
     out = None
@@ -36,7 +54,8 @@ def affine_forward(x, w, b):
 
 
 def affine_backward(dout, cache):
-    """Computes the backward pass for an affine (fully connected) layer.
+    """
+    Computes the backward pass for an affine (fully connected) layer.
 
     Inputs:
     - dout: Upstream derivative, of shape (N, M)
@@ -49,6 +68,20 @@ def affine_backward(dout, cache):
     - dx: Gradient with respect to x, of shape (N, d1, ..., d_k)
     - dw: Gradient with respect to w, of shape (D, M)
     - db: Gradient with respect to b, of shape (M,)
+
+    アフィン（完全接続）レイヤーのバックワードパスを計算する。
+
+    入力
+    - dout: 上流導関数, 形状は (N, M)
+    - キャッシュ： のタプル：
+      - x: 入力データ、形状は (N, d_1, ... d_k)
+      - w: 重み、形状は (D, M)
+      - b: 形状 (M,) のバイアス。
+
+    のタプルを返す：
+    - dx: dx: xに対する勾配, 形状 (N, d1, ..., d_k)
+    - dw: 形状 (D, M) の w に関する勾配
+    - db: 形状(M,)のbに関する勾配
     """
     x, w, b = cache
     dx, dw, db = None, None, None
@@ -69,13 +102,23 @@ def affine_backward(dout, cache):
 
 
 def relu_forward(x):
-    """Computes the forward pass for a layer of rectified linear units (ReLUs).
+    """
+    Computes the forward pass for a layer of rectified linear units (ReLUs).
 
     Input:
     - x: Inputs, of any shape
 
     Returns a tuple of:
     - out: Output, of the same shape as x
+    - cache: x
+
+    整流された線形ユニット(ReLUs)のレイヤーのフォワードパスを計算する。
+
+    入力
+    - x: 任意の形状の入力
+
+    のタプルを返す：
+    - out: x と同じ形の出力。
     - cache: x
     """
     out = None
@@ -95,7 +138,8 @@ def relu_forward(x):
 
 
 def relu_backward(dout, cache):
-    """Computes the backward pass for a layer of rectified linear units (ReLUs).
+    """
+    Computes the backward pass for a layer of rectified linear units (ReLUs).
 
     Input:
     - dout: Upstream derivatives, of any shape
@@ -103,6 +147,15 @@ def relu_backward(dout, cache):
 
     Returns:
     - dx: Gradient with respect to x
+
+    整流された線形ユニット(ReLUs)のレイヤーのバックワードパスを計算する。
+
+    入力
+    - dout: 任意の形状の上流導関数
+    - cache: 入力 x, dout と同じ形状
+
+    戻り値
+    - dx: x に対する勾配
     """
     dx, x = None, cache
     ###########################################################################
@@ -120,7 +173,8 @@ def relu_backward(dout, cache):
 
 
 def softmax_loss(x, y):
-    """Computes the loss and gradient for softmax classification.
+    """
+    Computes the loss and gradient for softmax classification.
 
     Inputs:
     - x: Input data, of shape (N, C) where x[i, j] is the score for the jth
@@ -131,6 +185,18 @@ def softmax_loss(x, y):
     Returns a tuple of:
     - loss: Scalar giving the loss
     - dx: Gradient of the loss with respect to x
+
+    ソフトマックス分類の損失と勾配を計算する．
+
+    入力
+    - x: 入力: x: 入力データ(N, C)。
+      クラスのスコアである。
+    - y: y[i]はx[i]に対するラベルであり
+      0 <= y[i] < C
+
+    のタプルを返す：
+    - loss: 損失を与えるスカラー
+    - dx: x に対する損失の勾配
     """
     loss, dx = None, None
 
@@ -141,7 +207,8 @@ def softmax_loss(x, y):
 
     N = len(y)  # number of samples
 
-    P = np.exp(x - x.max(axis=1, keepdims=True))  # numerically stable exponents
+    # numerically stable exponents
+    P = np.exp(x - x.max(axis=1, keepdims=True))
     P /= P.sum(axis=1, keepdims=True)  # row-wise probabilities (softmax)
 
     loss = -np.log(P[range(N), y]).sum() / N  # sum cross entropies as loss
@@ -157,7 +224,8 @@ def softmax_loss(x, y):
 
 
 def batchnorm_forward(x, gamma, beta, bn_param):
-    """Forward pass for batch normalization.
+    """
+    Forward pass for batch normalization.
 
     During training the sample mean and (uncorrected) sample variance are
     computed from minibatch statistics and used to normalize the incoming data.
@@ -192,6 +260,37 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     Returns a tuple of:
     - out: of shape (N, D)
     - cache: A tuple of values needed in the backward pass
+
+    バッチ正規化のためのフォワードパス。
+
+    トレーニング中、サンプル平均と（未補正の）サンプル分散がミニバッチ統計から計算され、入力データの正規化に使用される。
+    ミニバッチ統計から計算され、入力データの正規化に使用される。
+    学習中、各特徴の平均と分散の指数減衰する実行平均も保持します。
+    これらの平均はテスト時のデータの正規化に使用される。
+
+    各タイムステップで、運動量パラメータに基づく指数減衰を用いて、平均と分散の実行平均を更新する：
+
+    running_mean = momentum * running_mean + (1 - momentum) * sample_mean
+    running_var = momentum * running_var + (1 - momentum) * sample_var
+
+    バッチ正規化論文では、テスト時の動作が異なっていることに注意してください。
+    この実装では、ランニングアベレージを使用することにしました。
+    バッチ正規化の実装でも、実行平均を使用しています。
+
+    入力
+    - x: 形状 (N, D) のデータ
+    - gamma: 形状のスケールパラメータ (D,)
+    - beta: 形状のシフトパラメータ (D,)
+    - bn_param: 以下のキーを持つ辞書：
+      - mode: 'train' または 'test'; 必須
+      - eps: 数値安定性のための定数
+      - momentum: 実行平均/分散を表す定数.
+      - running_mean: 特徴量の走行平均を与える shape (D,) の配列．
+      - running_var 特徴量の実行分散を与える shape (D,) の配列．
+
+    のタプルを返す：
+    - out: shape (N, D) のタプル
+    - cache: バックワードパスで必要な値のタプル
     """
     mode = bn_param["mode"]
     eps = bn_param.get("eps", 1e-5)
@@ -223,26 +322,55 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         # deviation (square root of variance) instead!                        #
         # Referencing the original paper (https://arxiv.org/abs/1502.03167)   #
         # might prove to be helpful.                                          #
+        #                                                                     #
+        # バッチ正規化のトレーニング時のフォワードパスを実装する。
+        # ミニバッチ統計を使用して平均と分散を計算し、
+        # これらの統計を使用して入力データを正規化し、
+        # ガンマとベータを使用して正規化されたデータをスケーリングおよびシフトする。
+        #
+        # 出力は out 変数に格納する必要があります。
+        # バックワードパスに必要な中間値は cache 変数に格納する必要があります。
+        #
+        # また、サンプル平均と分散を計算し、モーメンタム変数と共に
+        # 実行平均と実行分散を更新する必要があります。
+        # 結果を running_mean と running_var 変数に格納してください。
+        #
+        # 実行分散を追跡する必要がありますが、
+        # データを標準偏差（分散の平方根）に基づいて正規化する必要があります！
+        # 元の論文 (https://arxiv.org/abs/1502.03167)
+        # を参照すると役立つかもしれません。
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        mu = x.mean(axis=0)  # batch mean for each feature
-        var = x.var(axis=0)  # batch variance for each feature
-        std = np.sqrt(var + eps)  # batch standard deviation for each feature
-        x_hat = (x - mu) / std  # standartized x
-        out = gamma * x_hat + beta  # scaled and shifted x_hat
+        # 各特徴のバッチ平均
+        mu = x.mean(axis=0)
+        # 各特徴のバッチ分散
+        var = x.var(axis=0)
+        # 各特徴のバッチ標準偏差
+        std = np.sqrt(var + eps)
+        # 標準化された x
+        x_hat = (x - mu) / std
+        # スケーリングとシフトされた x_hat
+        out = gamma * x_hat + beta
 
-        shape = bn_param.get("shape", (N, D))  # reshape used in backprop
-        axis = bn_param.get("axis", 0)  # axis to sum used in backprop
-        cache = x, mu, var, std, gamma, x_hat, shape, axis  # save for backprop
+        # バックプロップで使用されるリシェイプ
+        shape = bn_param.get("shape", (N, D))
+        # バックプロップで使用される合計軸
+        axis = bn_param.get("axis", 0)
+        # キャッシュに保存
+        cache = x, mu, var, std, gamma, x_hat, shape, axis
 
-        if axis == 0:  # if not batchnorm
+        # モーメンタムを使用して実行平均と実行分散を更新
+        # バッチ正規化でない場合
+        if axis == 0:
             running_mean = (
+                # 全体平均の更新
                 momentum * running_mean + (1 - momentum) * mu
-            )  # update overall mean
+            )
             running_var = (
+                # 全体分散の更新
                 momentum * running_var + (1 - momentum) * var
-            )  # update overall variance
+            )
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         #######################################################################
@@ -254,6 +382,11 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         # Use the running mean and variance to normalize the incoming data,   #
         # then scale and shift the normalized data using gamma and beta.      #
         # Store the result in the out variable.                               #
+        #                                                                     #
+        # バッチ正規化のテスト時のフォワードパスを実装する。
+        # 実行平均と実行分散を使用して入力データを正規化し、
+        # ガンマとベータを使用して正規化されたデータをスケーリングおよびシフトする。
+        # 結果を out 変数に格納してください。
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -267,7 +400,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     else:
         raise ValueError('Invalid forward batchnorm mode "%s"' % mode)
 
-    # Store the updated running means back into bn_param
+    # 更新された実行中のパラメータをbn_paramに戻す
     bn_param["running_mean"] = running_mean
     bn_param["running_var"] = running_var
 
@@ -275,7 +408,8 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 
 
 def batchnorm_backward(dout, cache):
-    """Backward pass for batch normalization.
+    """
+    Backward pass for batch normalization.
 
     For this implementation, you should write out a computation graph for
     batch normalization on paper and propagate gradients backward through
@@ -289,6 +423,21 @@ def batchnorm_backward(dout, cache):
     - dx: Gradient with respect to inputs x, of shape (N, D)
     - dgamma: Gradient with respect to scale parameter gamma, of shape (D,)
     - dbeta: Gradient with respect to shift parameter beta, of shape (D,)
+
+    バッチ正規化のためのバックワードパス。
+
+    この実装では、バッチ正規化のための計算グラフを紙に書き出して
+    この実装では、バッチ正規化のための計算グラフを紙に書き出し、勾配を中間ノードを介して後方に伝搬させる必要がある
+    中間ノードを介して後方に勾配を伝播させる。
+
+    入力
+    - dout: 形状 (N, D) の上流導関数
+    - キャッシュ： batchnorm_forward からの中間ノードの変数。
+
+    のタプルを返す：
+    - dx: 入力 x に対する勾配, 形状は (N, D).
+    - dgamma: スケールパラメータ gamma に関する勾配。
+    - dbeta: 形状(D,)のシフトパラメータβに関する勾配
     """
     dx, dgamma, dbeta = None, None, None
     ###########################################################################
@@ -296,26 +445,37 @@ def batchnorm_backward(dout, cache):
     # results in the dx, dgamma, and dbeta variables.                         #
     # Referencing the original paper (https://arxiv.org/abs/1502.03167)       #
     # might prove to be helpful.                                              #
+    #                                                                         #
+    # バッチ正規化のためのバックワードパスを実装する。
+    # dx, dgamma, dbeta 変数に結果を格納してください。
+    # 元の論文 (https://arxiv.org/abs/1502.03167)
+    # を参照すると役立つかもしれません。
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     # https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-through-the-batch-normalization-layer.html
 
-    x, mu, var, std, gamma, x_hat, shape, axis = cache  # expand cache
+    x, mu, var, std, gamma, x_hat, shape, axis = cache  # キャッシュを展開する
 
-    dbeta = dout.reshape(shape, order="F").sum(axis)  # derivative w.r.t. beta
-    dgamma = (
-        (dout * x_hat).reshape(shape, order="F").sum(axis)
-    )  # derivative w.r.t. gamma
+    # betaに関する導関数
+    dbeta = dout.reshape(shape, order="F").sum(axis)
+    # gammaに関する導関数
+    dgamma = (dout * x_hat).reshape(shape, order="F").sum(axis)
 
-    dx_hat = dout * gamma  # derivative w.t.r. x_hat
-    dstd = -np.sum(dx_hat * (x - mu), axis=0) / (std**2)  # derivative w.t.r. std
-    dvar = 0.5 * dstd / std  # derivative w.t.r. var
-    dx1 = dx_hat / std + 2 * (x - mu) * dvar / len(dout)  # partial derivative w.t.r. dx
-    dmu = -np.sum(dx1, axis=0)  # derivative w.t.r. mu
-    dx2 = dmu / len(dout)  # partial derivative w.t.r. dx
-    dx = dx1 + dx2  # full derivative w.t.r. x
-
+    # x_hatに関する導関数
+    dx_hat = dout * gamma
+    # stdに関する導関数
+    dstd = -np.sum(dx_hat * (x - mu), axis=0) / (std**2)
+    # varに関する導関数
+    dvar = 0.5 * dstd / std
+    # dxに関する偏導関数
+    dx1 = dx_hat / std + 2 * (x - mu) * dvar / len(dout)
+    # muに関する導関数
+    dmu = -np.sum(dx1, axis=0)
+    # dxに関する偏導関数
+    dx2 = dmu / len(dout)
+    # xに関する完全な導関数
+    dx = dx1 + dx2
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
     #                             END OF YOUR CODE                            #
@@ -325,7 +485,8 @@ def batchnorm_backward(dout, cache):
 
 
 def batchnorm_backward_alt(dout, cache):
-    """Alternative backward pass for batch normalization.
+    """
+    Alternative backward pass for batch normalization.
 
     For this implementation you should work out the derivatives for the batch
     normalizaton backward pass on paper and simplify as much as possible. You
@@ -336,6 +497,17 @@ def batchnorm_backward_alt(dout, cache):
     as batchnorm_backward, but might not use all of the values in the cache.
 
     Inputs / outputs: Same as batchnorm_backward
+
+    バッチ正規化のための代替バックワードパス。
+
+    この実装では、バッチ正規化バックワードパスの導関数を紙の上で計算し、可能な限り単純化する必要がある。
+    そして後方パスの簡単な式を導くことができるはずです。
+    より多くのヒントはjupyter notebookを参照してください。
+
+    注意: この実装では、batchnorm_backwardと同じキャッシュ変数
+    を受け取るはずですが、キャッシュ内のすべての値を使うとは限りません。
+
+    入出力： batchnorm_backwardと同じ
     """
     dx, dgamma, dbeta = None, None, None
     ###########################################################################
@@ -345,21 +517,32 @@ def batchnorm_backward_alt(dout, cache):
     # After computing the gradient with respect to the centered inputs, you   #
     # should be able to compute gradients with respect to the inputs in a     #
     # single statement; our implementation fits on a single 80-character line.#
+    #                                                                         #
+    # バッチ正規化のためのバックワードパスを実装する。
+    # dx, dgamma, dbeta 変数に結果を格納してください。
+    #
+    # 中心化された入力に関する勾配を計算した後、
+    # 1つのステートメントで入力に関する勾配を計算できるはずです。
+    # 私たちの実装は80文字の1行に収まります。
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    _, _, _, std, gamma, x_hat, shape, axis = cache  # expand cache
-    S = lambda x: x.sum(axis=0)  # helper function
+    _, _, _, std, gamma, x_hat, shape, axis = cache
 
-    dbeta = dout.reshape(shape, order="F").sum(axis)  # derivative w.r.t. beta
-    dgamma = (
-        (dout * x_hat).reshape(shape, order="F").sum(axis)
-    )  # derivative w.r.t. gamma
+    # ヘルパー関数
+    # numpyのsum関数をSとして定義
+    def S(x):
+        return x.sum(axis=0)
 
-    dx = dout * gamma / (len(dout) * std)  # temporarily initialize scale value
-    dx = (
-        len(dout) * dx - S(dx * x_hat) * x_hat - S(dx)
-    )  # derivative w.r.t. unnormalized x
+    # betaに関する導関数
+    dbeta = dout.reshape(shape, order="F").sum(axis)
+    # gammaに関する導関数
+    dgamma = (dout * x_hat).reshape(shape, order="F").sum(axis)
+
+    # スケール値を一時的に初期化する
+    dx = dout * gamma / (len(dout) * std)
+    # 非正規化されたxに関する導関数
+    dx = len(dout) * dx - S(dx * x_hat) * x_hat - S(dx)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -370,7 +553,8 @@ def batchnorm_backward_alt(dout, cache):
 
 
 def layernorm_forward(x, gamma, beta, ln_param):
-    """Forward pass for layer normalization.
+    """
+    Forward pass for layer normalization.
 
     During both training and test-time, the incoming data is normalized per data-point,
     before being scaled by gamma and beta parameters identical to that of batch normalization.
@@ -389,6 +573,26 @@ def layernorm_forward(x, gamma, beta, ln_param):
     Returns a tuple of:
     - out: of shape (N, D)
     - cache: A tuple of values needed in the backward pass
+
+    レイヤー正規化のためのフォワードパス。
+
+    トレーニング時とテスト時の両方で、入力データはデータポイントごとに正規化される、
+    バッチ正規化と同じガンマとベータパラメータでスケーリングされる前に。
+
+    バッチ正規化とは対照的に、学習時とテスト時のレイヤ正規化の動作は同じであることに注意。
+    層正規化の訓練時とテスト時の動作は同一であり、実行平均を追跡する必要がないことに注意する。
+    を追跡する必要はない。
+
+    入力
+    - x: データ形状 (N, D)
+    - gamma: 形状のスケールパラメータ (D,)
+    - beta: 形状のシフトパラメータ (D,)
+    - ln_param: 以下のキーを持つ辞書：
+        - eps: 数値安定のための定数
+
+    のタプルを返す：
+    - out: 形状 (N, D) の
+    - キャッシュ： 後方パスで必要な値のタプル
     """
     out, cache = None, None
     eps = ln_param.get("eps", 1e-5)
@@ -401,19 +605,30 @@ def layernorm_forward(x, gamma, beta, ln_param):
     # well-placed code. In particular, can you think of any matrix            #
     # transformations you could perform, that would enable you to copy over   #
     # the batch norm code and leave it almost unchanged?                      #
+    #                                                                         #
+    # レイヤ正規化のためのトレーニング時のフォワードパスを実装する。
+    # ガンマとベータを使用して入力データを正規化し、
+    # 正規化されたデータをスケーリングおよびシフトする
+    # ヒント：これは、バッチ正規化のトレーニング時の実装を
+    # わずかに変更することで行うことができます。
+    # そして、適切な場所に1行または2行のコードを挿入します。
+    # 特に、どのような行列変換を行うことができるか考えることができますか？
+    # これにより、バッチ正規化コードをコピーしてほぼ変更せずに残すことができますか？
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    # trainモードでのbatchnormと同じ + gradをどの軸で合計するか
     bn_param = {
         "mode": "train",
         "axis": 1,
         **ln_param,
-    }  # same as batchnorm in train mode + over which axis to sum for grad
-    [gamma, beta] = np.atleast_2d(gamma, beta)  # assure 2D to perform transpose
+    }
+    # 転置を行う2Dを保証する
+    [gamma, beta] = np.atleast_2d(gamma, beta)
 
-    out, cache = batchnorm_forward(x.T, gamma.T, beta.T, bn_param)  # same as batchnorm
-    out = out.T  # transpose back
-
+    out, cache = batchnorm_forward(x.T, gamma.T, beta.T, bn_param)
+    # 転置をもとに戻す
+    out = out.T
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
     #                             END OF YOUR CODE                            #
@@ -422,7 +637,8 @@ def layernorm_forward(x, gamma, beta, ln_param):
 
 
 def layernorm_backward(dout, cache):
-    """Backward pass for layer normalization.
+    """
+    Backward pass for layer normalization.
 
     For this implementation, you can heavily rely on the work you've done already
     for batch normalization.
@@ -435,6 +651,20 @@ def layernorm_backward(dout, cache):
     - dx: Gradient with respect to inputs x, of shape (N, D)
     - dgamma: Gradient with respect to scale parameter gamma, of shape (D,)
     - dbeta: Gradient with respect to shift parameter beta, of shape (D,)
+
+    レイヤー正規化のためのバックワードパス。
+
+    この実装では、バッチ正規化ですでに行った作業を大いに利用することができる。
+    を大いに利用することができる。
+
+    入力：
+    - dout: 形状（N, D）のアップストリーム微分。
+    - キャッシュ： layernorm_forward からの中間値の変数。
+
+    のタプルを返す：
+    - dx: 入力 x に対する勾配, 形状は (N, D).
+    - dgamma: スケールパラメータ gamma に対する勾配。
+    - dbeta: 形状(D,)のシフトパラメータβに関する勾配
     """
     dx, dgamma, dbeta = None, None, None
     ###########################################################################
@@ -443,13 +673,19 @@ def layernorm_backward(dout, cache):
     # HINT: this can be done by slightly modifying your training-time         #
     # implementation of batch normalization. The hints to the forward pass    #
     # still apply!                                                            #
+    #                                                                         #
+    # レイヤ正規化のためのバックワードパスを実装する。
+    #
+    # ヒント：これは、バッチ正規化のトレーニング時の実装を
+    # わずかに変更することで行うことができます。
+    # フォワードパスへのヒントは引き続き適用されます！
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    dx, dgamma, dbeta = batchnorm_backward_alt(
-        dout.T, cache
-    )  # same as batchnorm backprop
-    dx = dx.T  # transpose back dx
+    # バッチノームバックプロップと同じ
+    dx, dgamma, dbeta = batchnorm_backward_alt(dout.T, cache)
+    # # 転置をもとに戻す
+    dx = dx.T
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -459,7 +695,8 @@ def layernorm_backward(dout, cache):
 
 
 def dropout_forward(x, dropout_param):
-    """Forward pass for inverted dropout.
+    """
+    Forward pass for inverted dropout.
 
     Note that this is different from the vanilla version of dropout.
     Here, p is the probability of keeping a neuron output, as opposed to
@@ -480,6 +717,27 @@ def dropout_forward(x, dropout_param):
     - out: Array of the same shape as x.
     - cache: tuple (dropout_param, mask). In training mode, mask is the dropout
       mask that was used to multiply the input; in test mode, mask is None.
+
+    逆ドロップアウトのフォワードパス。
+
+    これはバニラ版のドロップアウトとは異なることに注意。
+    ここで、pはニューロン出力を維持する確率であり、ニューロン出力をドロップする確率とは対照的である。
+    とは対照的である。
+    詳細は http://cs231n.github.io/neural-networks-2/#reg を参照。
+
+    入力
+    - x: 入力データ。
+    - dropout_param: 以下のキーを持つ辞書：
+      - p: ドロップアウトパラメータ。各ニューロンの出力を確率pで保持する。
+      - mode: 'test' または 'train'. モードがtrainの場合、ドロップアウトを実行する
+        (モードがtestの場合、入力を返す。)
+      - seed: 乱数生成器のシード。seedを渡すと
+        これは勾配チェックには必要だが、実際のネットワークでは必要ない。
+
+    出力：
+    - out: x と同じ形の配列。
+    - cache: タプル (dropout_param, mask)。訓練モードでは、mask は入力に乗算するために使用された
+      テストモードでは、mask は None。
     """
     p, mode = dropout_param["p"], dropout_param["mode"]
     if "seed" in dropout_param:
@@ -492,9 +750,13 @@ def dropout_forward(x, dropout_param):
         #######################################################################
         # TODO: Implement training phase forward pass for inverted dropout.   #
         # Store the dropout mask in the mask variable.                        #
+        #                                                                     #
+        # 逆ドロップアウトのためにトレーニングフェーズのフォワードパスを導入する。
+        # マスク変数にドロップアウトマスクを格納する。
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        # p未満で1、p以上で0のマスクを適用
         mask = (np.random.rand(*x.shape) < p) / p
         out = x * mask
 
@@ -505,9 +767,12 @@ def dropout_forward(x, dropout_param):
     elif mode == "test":
         #######################################################################
         # TODO: Implement the test phase forward pass for inverted dropout.   #
+        #                                                                     #
+        # 逆ドロップアウトのテストフェーズのフォワードパスを実装する。
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        # テスト時はドロップアウトしない
         out = x
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -522,11 +787,18 @@ def dropout_forward(x, dropout_param):
 
 
 def dropout_backward(dout, cache):
-    """Backward pass for inverted dropout.
+    """
+    Backward pass for inverted dropout.
 
     Inputs:
     - dout: Upstream derivatives, of any shape
     - cache: (dropout_param, mask) from dropout_forward.
+
+    逆ドロップアウトのためのバックワードパス。
+
+    入力
+    - dout: 任意の形状のアップストリーム微分
+    - cache:  dropout_forwardからの(dropout_param, mask).
     """
     dropout_param, mask = cache
     mode = dropout_param["mode"]
@@ -535,9 +807,12 @@ def dropout_backward(dout, cache):
     if mode == "train":
         #######################################################################
         # TODO: Implement training phase backward pass for inverted dropout   #
+        #                                                                     #
+        # 逆ドロップアウトのためのトレーニングフェーズのバックワードパスを実装する
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        # ドロップアウトを適用した場合の微分
         dx = dout * mask
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -590,7 +865,8 @@ def conv_forward_naive(x, w, b, conv_param):
     WO = 1 + (WI + P2 + P4 - WF) // S2  # output width
 
     # Helper function (warning: numpy version 1.20 or above is required for usage)
-    to_fields = lambda x: np.lib.stride_tricks.sliding_window_view(x, (WF, HF, C, N))
+    def to_fields(x):
+        return np.lib.stride_tricks.sliding_window_view(x, (WF, HF, C, N))
 
     w_row = w.reshape(F, -1)  # weights as rows
     x_pad = np.pad(x, ((0, 0), (0, 0), (P1, P3), (P2, P4)), "constant")  # padded inputs
@@ -698,7 +974,8 @@ def max_pool_forward_naive(x, pool_param):
     WO = 1 + (WI - WP) // S2  # output width
 
     # Helper function (warning: numpy version 1.20 or above is required for usage)
-    to_fields = lambda x: np.lib.stride_tricks.sliding_window_view(x, (WP, HP, C, N))
+    def to_fields(x):
+        return np.lib.stride_tricks.sliding_window_view(x, (WP, HP, C, N))
 
     x_fields = (
         to_fields(x.T).T[..., ::S1, ::S2].reshape(N, C, HP * WP, -1)
@@ -743,8 +1020,10 @@ def max_pool_backward_naive(dout, cache):
             f = x[:, :, h : (h + HP), w : (w + WP)].reshape(
                 N, C, -1
             )  # input local fields
-            k, l = np.unravel_index(np.argmax(f, 2), (HP, WP))  # offsets for max vals
-            dx[ns, cs, h + k, w + l] += dout[ns, cs, i, j]  # select areas to update
+            # offsets for max vals
+            k, l = np.unravel_index(np.argmax(f, 2), (HP, WP))
+            # select areas to update
+            dx[ns, cs, h + k, w + l] += dout[ns, cs, i, j]
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -786,11 +1065,13 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     N, C, H, W = x.shape  # input dims
-    x = np.moveaxis(x, 1, -1).reshape(-1, C)  # swap axes to use vanilla batchnorm
+    # swap axes to use vanilla batchnorm
+    x = np.moveaxis(x, 1, -1).reshape(-1, C)
     out, cache = batchnorm_forward(
         x, gamma, beta, bn_param
     )  # perform vanilla batchnorm
-    out = np.moveaxis(out.reshape(N, H, W, C), -1, 1)  # swap back axes for the output
+    # swap back axes for the output
+    out = np.moveaxis(out.reshape(N, H, W, C), -1, 1)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
