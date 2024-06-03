@@ -6,5 +6,10 @@
       "matchUpdateTypes": ["major", "minor"],
       "enabled": false
     }
-  ]
+  ],
+  "devcontainer": {
+    "fileMatch": [
+      "^.devcontainer/([^/]+/)?devcontainer\\.json$"
+    ]
+  }
 }
