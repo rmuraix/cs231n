@@ -887,17 +887,17 @@ def conv_forward_naive(x, w, b, conv_param):
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     # パディング：上＝右＝下＝左
-    P1 = P2 = P3 = P4 = conv_param["pad"]
+    PADDING_TOP = PADDING_RIGHT = PADDING_BOTTOM = PADDING_LEFT = conv_param["pad"]
     # ストライド：上＝下
-    S1 = S2 = conv_param["stride"]
+    STRIDE_TOP = STRIDE_BOTTOM = conv_param["stride"]
     # 入力の次元
     N, C, HI, WI = x.shape
     # フィルタの次元
     F, _, HF, WF = w.shape
     # 出力の高さ
-    HO = 1 + (HI + P1 + P3 - HF) // S1
+    HO = 1 + (HI + PADDING_TOP + PADDING_BOTTOM - HF) // STRIDE_TOP
     # 出力の幅
-    WO = 1 + (WI + P2 + P4 - WF) // S2
+    WO = 1 + (WI + PADDING_RIGHT + PADDING_LEFT - WF) // STRIDE_BOTTOM
 
     # ヘルパー関数 (警告: 使用には numpy バージョン 1.20 以上が必要)
     def to_fields(x):
@@ -906,9 +906,17 @@ def conv_forward_naive(x, w, b, conv_param):
     # ウェイトを行に
     w_row = w.reshape(F, -1)
     # パディングされた入力
-    x_pad = np.pad(x, ((0, 0), (0, 0), (P1, P3), (P2, P4)), "constant")
+    x_pad = np.pad(
+        x,
+        ((0, 0), (0, 0), (PADDING_TOP, PADDING_BOTTOM), (PADDING_RIGHT, PADDING_LEFT)),
+        "constant",
+    )
     # 入力を列に
-    x_col = to_fields(x_pad.T).T[..., ::S1, ::S2].reshape(N, C * HF * WF, -1)
+    x_col = (
+        to_fields(x_pad.T)
+        .T[..., ::STRIDE_TOP, ::STRIDE_BOTTOM]
+        .reshape(N, C * HF * WF, -1)
+    )
 
     out = (w_row @ x_col).reshape(N, F, HO, WO) + np.expand_dims(b, axis=(2, 1))
 
@@ -961,18 +969,18 @@ def conv_backward_naive(dout, cache):
     # キャッシュからパラメータを抽出
     x_pad, w, b, conv_param = cache
     # ストライド：上＝下
-    S1 = S2 = conv_param["stride"]
+    STRIDE_TOP = STRIDE_BOTTOM = conv_param["stride"]
     # パディング：上＝右＝下＝左
-    P1 = P2 = P3 = P4 = conv_param["pad"]
+    PADDING_TOP = PADDING_RIGHT = PADDING_BOTTOM = PADDING_LEFT = conv_param["pad"]
     # フィルタの次元
     F, C, HF, WF = w.shape
     # 出力の次元
     N, _, HO, WO = dout.shape
 
     # 「行方不明」の行
-    dout = np.insert(dout, [*range(1, HO)] * (S1 - 1), 0, axis=2)
+    dout = np.insert(dout, [*range(1, HO)] * (STRIDE_TOP - 1), 0, axis=2)
     # 「行方不明」の列
-    dout = np.insert(dout, [*range(1, WO)] * (S2 - 1), 0, axis=3)
+    dout = np.insert(dout, [*range(1, WO)] * (STRIDE_BOTTOM - 1), 0, axis=3)
     # 完全畳み込み用
     dout_pad = np.pad(dout, ((0,), (0,), (HF - 1,), (WF - 1,)), "constant")
 
@@ -988,7 +996,9 @@ def conv_backward_naive(dout, cache):
     # 関連付ける
     dw = np.einsum("ijkl,mnopiqkl->jqop", dout, x_fields)
     # 畳み込み
-    dx = np.einsum("ijkl,mnopqikl->qjop", w_rot, dout_fields)[..., P1:-P3, P2:-P4]
+    dx = np.einsum("ijkl,mnopqikl->qjop", w_rot, dout_fields)[
+        ..., PADDING_TOP:-PADDING_BOTTOM, PADDING_RIGHT:-PADDING_LEFT
+    ]
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
