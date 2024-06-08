@@ -1,0 +1,12 @@
+[book]
+authors = ["Ryota Murai"]
+description = "Unofficial cs231n course materials translated into Japanese."
+language = "ja"
+multilingual = false
+src = "src"
+[output.html]
+git-repository-url = "https://github.com/rmuraix/cs231n"
+edit-url-template = "https://github.com/rmuraix/cs231n/edit/main/docs/{path}"
+site-url = "/cs231n/"
+[output.html.code]
+hidelines = { python = "~" }
