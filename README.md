@@ -24,6 +24,17 @@ poetry run ruff format .
 pre-commit install
 ```
 
+## Course Materials
+
+To see the course materials translated into Japanese, execute the following commands.
+
+```sh
+cd docs
+docker compose up
+```
+
+Open http://localhost:3000
+
 ## References
 
 - [Course page](https://cs231n.stanford.edu/index.html)
