@@ -15,4 +15,4 @@ services:
       - serve
       - --hostname
       - '0.0.0.0'
-    user: "${UID}:${GID}"
+    user: "${USERID}:${GROUPID}"
