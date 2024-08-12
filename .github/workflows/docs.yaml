@@ -12,7 +12,7 @@ jobs:
       - name: Build documentation
         run: |
           cd docs
-          export USERID=$(id -u) && export GROUPID=$(id -g) && docker-compose run --rm mdbook build
+          export USERID=$(id -u) && export GROUPID=$(id -g) && docker compose run --rm mdbook build
           cd ..
       - name: Setup Pages
         uses: actions/configure-pages@v5
