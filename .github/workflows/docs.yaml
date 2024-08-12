@@ -2,8 +2,12 @@ name: Docs
 on:
   push:
     branches: [main]
+    paths:
+      - 'docs/**'
   pull_request:
     branches: [main]
+    paths:
+      - 'docs/**'
 permissions:
   contents: read
   pages: write
