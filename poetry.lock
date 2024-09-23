@@ -1241,13 +1241,13 @@ tests = ["pytest (>=4.6)"]
 
 [[package]]
 name = "nbdev"
-version = "2.3.29"
+version = "2.3.31"
 description = "Create delightful software with Jupyter Notebooks"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "nbdev-2.3.29-py3-none-any.whl", hash = "sha256:42eb8e1160b0a2856188c34e145530eb26d1a4b221f363ec22a9d7bf0a796157"},
-    {file = "nbdev-2.3.29.tar.gz", hash = "sha256:379a0eefb0e22cccf26d0884e3998821fbb90e84f7fe747489e8c1fd23e958b4"},
+    {file = "nbdev-2.3.31-py3-none-any.whl", hash = "sha256:6fe720e04f917c444289a2a97971a0dff94b50be4f4ba2e938e2bbbdf764693a"},
+    {file = "nbdev-2.3.31.tar.gz", hash = "sha256:6b404e070ce56751c5be96a6a901e7f2bb608217644dfafdefbf305bce2aed7a"},
 ]
 
 [package.dependencies]
