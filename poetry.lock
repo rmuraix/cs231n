@@ -1241,13 +1241,13 @@ tests = ["pytest (>=4.6)"]
 
 [[package]]
 name = "nbdev"
-version = "2.3.32"
+version = "2.3.34"
 description = "Create delightful software with Jupyter Notebooks"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "nbdev-2.3.32-py3-none-any.whl", hash = "sha256:d93912a28ad3fddff27c69d00b87d7266a402768c60341586453a7196bce333e"},
-    {file = "nbdev-2.3.32.tar.gz", hash = "sha256:a723d49884d420cdaec26f45ef19beca8ad733032c1dcb55738f77ebe27be9ad"},
+    {file = "nbdev-2.3.34-py3-none-any.whl", hash = "sha256:b08689d5a9ac936cbbd587c9c97c5673cc4d148db4a774380fa0f3adc9e4c064"},
+    {file = "nbdev-2.3.34.tar.gz", hash = "sha256:a0766337e42ee08f47c91d517804e009d85e4dfbe984951cbecee877538e4ef7"},
 ]
 
 [package.dependencies]
@@ -1262,7 +1262,7 @@ setuptools = "*"
 watchdog = "*"
 
 [package.extras]
-dev = ["black", "ipywidgets", "llms-txt", "matplotlib", "nbclassic", "nbdev-numpy", "nbdev-stdlib", "pandas", "pysymbol-llm", "svg.py"]
+dev = ["black", "ipywidgets", "llms-txt", "matplotlib", "nbclassic", "nbdev-numpy", "nbdev-stdlib", "pandas", "pysymbol-llm", "sphinx", "svg.py"]
 
 [[package]]
 name = "nest-asyncio"
