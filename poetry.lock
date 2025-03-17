@@ -403,13 +403,13 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "execnb"
-version = "0.1.6"
+version = "0.1.12"
 description = "A description of your project"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "execnb-0.1.6-py3-none-any.whl", hash = "sha256:095b74984efe40804a3e9535be3936fa657fd76a1227c2c839672dfc0bb2816a"},
-    {file = "execnb-0.1.6.tar.gz", hash = "sha256:289d97107a856344b16c08953d60453b47320b41168060eca3cc2dee504b4e05"},
+    {file = "execnb-0.1.12-py3-none-any.whl", hash = "sha256:ae23ea0686a0c150163c5f53c08ec4b599da09768c5db5ab9f0a804487469ec0"},
+    {file = "execnb-0.1.12.tar.gz", hash = "sha256:659328078008dae9f4f6735558aa7dce470944c1c7d654988dc329e9dd29f9df"},
 ]
 
 [package.dependencies]
@@ -417,7 +417,7 @@ fastcore = ">=1.5.5"
 ipython = "*"
 
 [package.extras]
-dev = ["Pillow", "matplotlib"]
+dev = ["Pillow", "matplotlib", "mistletoe"]
 
 [[package]]
 name = "executing"
@@ -1233,19 +1233,19 @@ tests = ["pytest (>=4.6)"]
 
 [[package]]
 name = "nbdev"
-version = "2.3.34"
+version = "2.3.35"
 description = "Create delightful software with Jupyter Notebooks"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "nbdev-2.3.34-py3-none-any.whl", hash = "sha256:b08689d5a9ac936cbbd587c9c97c5673cc4d148db4a774380fa0f3adc9e4c064"},
-    {file = "nbdev-2.3.34.tar.gz", hash = "sha256:a0766337e42ee08f47c91d517804e009d85e4dfbe984951cbecee877538e4ef7"},
+    {file = "nbdev-2.3.35-py3-none-any.whl", hash = "sha256:bc485b5aa59d0328a9a285fca0861f25eaea716cc7e2ec6182cfd5bf05d6ac88"},
+    {file = "nbdev-2.3.35.tar.gz", hash = "sha256:3fd2cdd38543e022892e74f1a404fd74aeacaea1a49f683578af097493c4c8f7"},
 ]
 
 [package.dependencies]
 asttokens = "*"
 astunparse = "*"
-execnb = ">=0.1.4"
+execnb = ">=0.1.12"
 fastcore = ">=1.5.27"
 ghapi = ">=1.0.3"
 packaging = "*"
@@ -1254,7 +1254,7 @@ setuptools = "*"
 watchdog = "*"
 
 [package.extras]
-dev = ["black", "ipywidgets", "llms-txt", "matplotlib", "nbclassic", "nbdev-numpy", "nbdev-stdlib", "pandas", "pysymbol-llm", "sphinx", "svg.py"]
+dev = ["black", "ipywidgets", "llms-txt", "matplotlib", "nbclassic", "nbdev-numpy", "nbdev-stdlib", "pandas", "pysymbol_llm", "sphinx", "svg.py"]
 
 [[package]]
 name = "nest-asyncio"
