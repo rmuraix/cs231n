@@ -1,15 +1,20 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>rmuraix/renovate-config"],
+  "extends": [
+    "github>rmuraix/renovate-config"
+  ],
   "packageRules": [
     {
-      "matchUpdateTypes": ["major", "minor"],
+      "matchUpdateTypes": [
+        "major",
+        "minor"
+      ],
       "enabled": false
     }
   ],
   "devcontainer": {
-    "fileMatch": [
-      "^.devcontainer/([^/]+/)?devcontainer\\.json$"
+    "managerFilePatterns": [
+      "/^.devcontainer/([^/]+/)?devcontainer\\.json$/"
     ]
   }
 }
