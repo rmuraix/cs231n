@@ -8,8 +8,8 @@
     }
   ],
   "devcontainer": {
-    "fileMatch": [
-      "^.devcontainer/([^/]+/)?devcontainer\\.json$"
+    "managerFilePatterns": [
+      "/^.devcontainer/([^/]+/)?devcontainer\\.json$/"
     ]
   }
 }
