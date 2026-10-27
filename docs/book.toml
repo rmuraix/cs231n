@@ -8,5 +8,6 @@ src = "src"
 git-repository-url = "https://github.com/rmuraix/cs231n"
 edit-url-template = "https://github.com/rmuraix/cs231n/edit/main/docs/{path}"
 site-url = "/cs231n/"
+mathjax-support = true
 [output.html.code]
 hidelines = { python = "~" }
