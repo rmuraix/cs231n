@@ -199,64 +199,66 @@ L2正則化はこのように小さく分散した重みを好むため、最終
 
 ```python
 def L_i(x, y, W):
-"""
-非ベクトル化バージョン。単一の例 (x, y) に対してマルチクラスSVM損失を計算します。
-- x は画像を表す列ベクトル（例：CIFAR-10 では 3073 x 1）で、
-    バイアス項として3073番目の次元が追加されています（いわゆるバイアストリック）。
-- y は正解クラスのインデックスを表す整数（例：CIFAR-10 では 0〜9）。
-- W は重み行列（例：CIFAR-10 では 10 x 3073）。
-"""
-delta = 1.0  # マージンのしきい値（このセクション後半で説明あり）
-scores = W.dot(x)  # 各クラスのスコアを計算（サイズは 10 x 1）
-correct_class_score = scores[y]  # 正解クラスのスコア
-D = W.shape[0]  # クラス数（例：10）
-loss_i = 0.0
-for j in range(D):  # 全てのクラスに対してループ
-    if j == y:
-    # 正解クラスはスキップし、誤ったクラスのみを対象とする
-    continue
-    # i番目の訓練例に対する損失を累積
-    loss_i += max(0, scores[j] - correct_class_score + delta)
-return loss_i
+    """
+    非ベクトル化バージョン。単一の例 (x, y) に対してマルチクラスSVM損失を計算します。
+    - x は画像を表す列ベクトル（例：CIFAR-10 では 3073 x 1）で、
+        バイアス項として3073番目の次元が追加されています（いわゆるバイアストリック）。
+    - y は正解クラスのインデックスを表す整数（例：CIFAR-10 では 0〜9）。
+    - W は重み行列（例：CIFAR-10 では 10 x 3073）。
+    """
+    delta = 1.0  # マージンのしきい値（このセクション後半で説明あり）
+    scores = W.dot(x)  # 各クラスのスコアを計算（サイズは 10 x 1）
+    correct_class_score = scores[y]  # 正解クラスのスコア
+    D = W.shape[0]  # クラス数（例：10）
+    loss_i = 0.0
+    for j in range(D):  # 全てのクラスに対してループ
+        if j == y:
+            # 正解クラスはスキップし、誤ったクラスのみを対象とする
+            continue
+        # i番目の訓練例に対する損失を累積
+        loss_i += max(0, scores[j] - correct_class_score + delta)
+    return loss_i
 ```
+
 #### 半ベクトル化
 
 ```python
 def L_i_vectorized(x, y, W):
-"""
-より高速な半ベクトル化バージョン。半ベクトル化とは、
-単一の訓練例に対して for ループを使用せずに実装していることを意味します。
-（ただし、全体のループはこの関数の外で行われます）
-"""
-delta = 1.0
-scores = W.dot(x)  # 各クラスのスコアを計算（サイズは 10 x 1）
-# 全クラスに対してマージンをベクトル演算で一括計算
-margins = np.maximum(0, scores - scores[y] + delta)
-# 正解クラスに対応する位置ではスコア差がキャンセルされ delta となるが、
-# ここでは正解クラスのマージンを無視したいため 0 に設定
-margins[y] = 0
-loss_i = np.sum(margins)  # マージンの総和を損失とする
-return loss_i
+    """
+    より高速な半ベクトル化バージョン。半ベクトル化とは、
+    単一の訓練例に対して for ループを使用せずに実装していることを意味します。
+    （ただし、全体のループはこの関数の外で行われます）
+    """
+    delta = 1.0
+    scores = W.dot(x)  # 各クラスのスコアを計算（サイズは 10 x 1）
+    # 全クラスに対してマージンをベクトル演算で一括計算
+    margins = np.maximum(0, scores - scores[y] + delta)
+    # 正解クラスに対応する位置ではスコア差がキャンセルされ delta となるが、
+    # ここでは正解クラスのマージンを無視したいため 0 に設定
+    margins[y] = 0
+    loss_i = np.sum(margins)  # マージンの総和を損失とする
+    return loss_i
 ```
+
 #### 完全ベクトル化
 
 ```python
 def L(X, y, W):
-"""
-完全ベクトル化された実装：
-- X は全ての訓練データを列方向に保持する行列（例：CIFAR-10では 3073 x 50,000）
-- y は正解クラスを指定する整数配列（例：長さ50,000の配列）
-- W は重み行列（例：10 x 3073）
+    """
+    完全ベクトル化された実装：
+    - X は全ての訓練データを列方向に保持する行列（例：CIFAR-10では 3073 x 50,000）
+    - y は正解クラスを指定する整数配列（例：長さ50,000の配列）
+    - W は重み行列（例：10 x 3073）
 
-全ての訓練例に対する損失を for ループを使わずに計算します。
-"""
-delta = 1.0
-scores = W.dot(X)  # スコア行列（10 x N）
-correct_class_scores = scores[y, np.arange(X.shape[1])]  # 正解クラスのスコア（1 x N）
-margins = np.maximum(0, scores - correct_class_scores + delta)  # マージン計算（10 x N）
-margins[y, np.arange(X.shape[1])] = 0  # 正解クラスのマージンは無視
-loss = np.sum(margins)  # 全訓練例の損失を合計
-return loss
+    全ての訓練例に対する損失を for ループを使わずに計算します。
+    """
+    delta = 1.0
+    scores = W.dot(X)  # スコア行列（10 x N）
+    correct_class_scores = scores[y, np.arange(X.shape[1])]  # 正解クラスのスコア（1 x N）
+    margins = np.maximum(0, scores - correct_class_scores + delta)  # マージン計算（10 x N）
+    margins[y, np.arange(X.shape[1])] = 0  # 正解クラスのマージンは無視
+    loss = np.sum(margins)  # 全訓練例の損失を合計
+    return loss
 ```
 
 このセクションの要点は、SVM損失が、訓練データに対する予測が正解ラベルとどれだけ一致しているかを測る一つの方法であるということです。加えて、訓練データに対して良い予測を行うことは、損失を最小化することと同義になります。
