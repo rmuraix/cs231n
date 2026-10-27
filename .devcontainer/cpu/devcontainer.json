@@ -1,6 +1,6 @@
 {
     "name": "cs231n-py3-cpu",
-	"image": "python:3.10.18-slim-bullseye",
+	"image": "python:3.14-slim-bookworm",
     "containerEnv": {
 		"TZ": "Asia/Tokyo"
 	},
