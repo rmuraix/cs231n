@@ -10,9 +10,9 @@
 	"features": {
 		"ghcr.io/devcontainers/features/python:1": {
             "installTools": false,
-            "version": "3.10"
+            "version": "3.14"
         },
-		"ghcr.io/devcontainers-contrib/features/poetry:2": {},
+		"ghcr.io/va-h/devcontainers-features/uv:1": {},
 		"ghcr.io/devcontainers/features/common-utils:2": {
             "installZsh": false,
             "installOhMyZsh": false,
@@ -23,7 +23,7 @@
             "userGid": "automatic"
         }
 	},
-	"postStartCommand": "poetry install --with gpu",
+	"postStartCommand": "uv sync --group gpu",
 	"remoteUser": "vscode",
 	"customizations": {
 		"vscode": {
