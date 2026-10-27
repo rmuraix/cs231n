@@ -254,8 +254,12 @@ def L(X, y, W):
     """
     delta = 1.0
     scores = W.dot(X)  # スコア行列（10 x N）
-    correct_class_scores = scores[y, np.arange(X.shape[1])]  # 正解クラスのスコア（1 x N）
-    margins = np.maximum(0, scores - correct_class_scores + delta)  # マージン計算（10 x N）
+    correct_class_scores = scores[
+        y, np.arange(X.shape[1])
+    ]  # 正解クラスのスコア（1 x N）
+    margins = np.maximum(
+        0, scores - correct_class_scores + delta
+    )  # マージン計算（10 x N）
     margins[y, np.arange(X.shape[1])] = 0  # 正解クラスのマージンは無視
     loss = np.sum(margins)  # 全訓練例の損失を合計
     return loss
@@ -347,7 +351,9 @@ P(y\_i \mid x\_i; W) = \frac{e^{f\_{y\_i}}}{\sum\_j e^{f\_j} }
 
 ```python
 f = np.array([123, 456, 789])  # 3クラスのスコアが非常に大きい例
-p = np.exp(f) / np.sum(np.exp(f))  # 悪い例：数値的に不安定で、オーバーフローの可能性あり
+p = np.exp(f) / np.sum(
+    np.exp(f)
+)  # 悪い例：数値的に不安定で、オーバーフローの可能性あり
 
 # 代わりに：f の値をシフトして、最大値が 0 になるようにする：
 f -= np.max(f)  # f は [-666, -333, 0] となる

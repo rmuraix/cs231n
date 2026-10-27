@@ -81,14 +81,15 @@ X_train はデータ（各列が1つのサンプル、例：3073 × 50,000）で
 Y_train はラベル（例：1次元配列で50,000要素）とする。
 また、関数 L は損失関数を評価する。
 """
+
 bestloss = float("inf")  # Pythonでは無限大の初期値を設定
 for num in range(1000):
-  W = np.random.randn(10, 3073) * 0.0001  # 小さな値で初期化されたランダムな重みを生成
-  loss = L(X_train, Y_train, W)  # トレーニングセット全体に対する損失を計算
-  if loss < bestloss:  # 最良の損失値を記録
-    bestloss = loss
-    bestW = W
-  print('in attempt %d the loss was %f, best %f' % (num, loss, bestloss))
+    W = np.random.randn(10, 3073) * 0.0001  # 小さな値で初期化されたランダムな重みを生成
+    loss = L(X_train, Y_train, W)  # トレーニングセット全体に対する損失を計算
+    if loss < bestloss:  # 最良の損失値を記録
+        bestloss = loss
+        bestW = W
+    print("in attempt %d the loss was %f, best %f" % (num, loss, bestloss))
 
 # 出力:
 # in attempt 0 the loss was 9.401632, best 9.401632
@@ -105,8 +106,12 @@ for num in range(1000):
 
 ```python
 # X_testは[3073 x 10000]、Y_testは[10000 x 1]と仮定
-scores = Wbest.dot(Xte_cols)  # 10 x 10000、すべてのテストサンプルに対するクラススコアを計算
-Yte_predict = np.argmax(scores, axis=0)  # 各列の最大スコアのインデックス（予測されたクラス）を取得
+scores = Wbest.dot(
+    Xte_cols
+)  # 10 x 10000、すべてのテストサンプルに対するクラススコアを計算
+Yte_predict = np.argmax(
+    scores, axis=0
+)  # 各列の最大スコアのインデックス（予測されたクラス）を取得
 np.mean(Yte_predict == Yte)  # 正解率（予測が正しかった割合）を計算
 # 結果：0.1555 を返す
 ```
@@ -128,16 +133,16 @@ np.mean(Yte_predict == Yte)  # 正解率（予測が正しかった割合）を�
 最初に思いつく戦略は、足をランダムな方向に一歩伸ばしてみて、もしそれが下り坂につながっているならその方向に進むという方法です。具体的には、ランダムな \\(W\\) から始めて、それに対するランダムな摂動 \\(\delta W\\) を生成し、摂動後の \\(W + \delta W\\) における損失が低ければ更新を行うという手順です。この手続きを実装するコードは以下のとおりです。
 
 ```python
-W = np.random.randn(10, 3073) * 0.001 # ランダムな初期Wを生成
+W = np.random.randn(10, 3073) * 0.001  # ランダムな初期Wを生成
 bestloss = float("inf")
 for i in range(1000):
-  step_size = 0.0001
-  Wtry = W + np.random.randn(10, 3073) * step_size
-  loss = L(Xtr_cols, Ytr, Wtry)
-  if loss < bestloss:
-    W = Wtry
-    bestloss = loss
-  print('iter %d loss is %f' % (i, bestloss))
+    step_size = 0.0001
+    Wtry = W + np.random.randn(10, 3073) * step_size
+    loss = L(Xtr_cols, Ytr, Wtry)
+    if loss < bestloss:
+        W = Wtry
+        bestloss = loss
+    print("iter %d loss is %f" % (i, bestloss))
 ```
 
 先ほどと同じ回数（1000 回）の損失関数評価を用いた場合、このアプローチではテストセットにおける分類精度が 21.4% に達します。これは改善ではあるものの、依然として無駄が多く、計算コストも高い方法です。
@@ -166,32 +171,31 @@ for i in range(1000):
 
 ```python
 def eval_numerical_gradient(f, x):
-  """
-  f の数値的勾配を x において評価する素朴な実装
-  - f は1つの引数を取る関数である必要がある
-  - x は勾配を評価する点（NumPy 配列）
-  """
+    """
+    f の数値的勾配を x において評価する素朴な実装
+    - f は1つの引数を取る関数である必要がある
+    - x は勾配を評価する点（NumPy 配列）
+    """
 
-  fx = f(x)  # 元の点における関数値を評価
-  grad = np.zeros(x.shape)
-  h = 0.00001
+    fx = f(x)  # 元の点における関数値を評価
+    grad = np.zeros(x.shape)
+    h = 0.00001
 
-  # x のすべてのインデックスを反復処理
-  it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
-  while not it.finished:
+    # x のすべてのインデックスを反復処理
+    it = np.nditer(x, flags=["multi_index"], op_flags=["readwrite"])
+    while not it.finished:
+        # x+h における関数を評価
+        ix = it.multi_index
+        old_value = x[ix]
+        x[ix] = old_value + h  # h だけ増加
+        fxh = f(x)  # f(x + h) を評価
+        x[ix] = old_value  # 元の値に戻す（非常に重要！）
 
-    # x+h における関数を評価
-    ix = it.multi_index
-    old_value = x[ix]
-    x[ix] = old_value + h # h だけ増加
-    fxh = f(x) # f(x + h) を評価
-    x[ix] = old_value # 元の値に戻す（非常に重要！）
+        # 偏微分を計算
+        grad[ix] = (fxh - fx) / h  # 傾きを計算
+        it.iternext()  # 次の次元へ進む
 
-    # 偏微分を計算
-    grad[ix] = (fxh - fx) / h # 傾きを計算
-    it.iternext() # 次の次元へ進む
-
-  return grad
+    return grad
 ```
 
 上記の勾配の式に従って、このコードはすべての次元を一つずつ反復し、その次元に沿って小さな変化 \\(h\\) を加え、関数がどれだけ変化したかを見ることで損失関数のその次元における偏微分を計算します。最終的に、変数`grad`は完全な勾配ベクトルを保持します。
@@ -208,7 +212,8 @@ def eval_numerical_gradient(f, x):
 # 上記の汎用コードを使うには、1つの引数（この場合は重み）を取る関数が必要。
 # そのため、X_train と Y_train をクロージャで囲む。
 def CIFAR10_loss_fun(W):
-  return L(X_train, Y_train, W)
+    return L(X_train, Y_train, W)
+
 
 W = np.random.rand(10, 3073) * 0.001  # ランダムな重みベクトルを初期化
 df = eval_numerical_gradient(CIFAR10_loss_fun, W)  # 勾配を計算
@@ -218,14 +223,14 @@ df = eval_numerical_gradient(CIFAR10_loss_fun, W)  # 勾配を計算
 
 ```python
 loss_original = CIFAR10_loss_fun(W)  # 元の損失を計算
-print('original loss: %f' % loss_original)
+print("original loss: %f" % loss_original)
 
 # 複数のステップサイズでの効果を確認
 for step_size_log in [-10, -9, -8, -7, -6, -5, -4, -3, -2, -1]:
-  step_size = 10 ** step_size_log
-  W_new = W - step_size * df  # 重み空間上の新しい位置
-  loss_new = CIFAR10_loss_fun(W_new)
-  print('for step size %f new loss: %f' % (step_size, loss_new))
+    step_size = 10**step_size_log
+    W_new = W - step_size * df  # 重み空間上の新しい位置
+    loss_new = CIFAR10_loss_fun(W_new)
+    print("for step size %f new loss: %f" % (step_size, loss_new))
 
 # 出力結果の例:
 # original loss: 2.200718
@@ -303,8 +308,8 @@ L\_i = \sum\_{j\neq y\_i} \left[ \max(0, w\_j^Tx\_i - w\_{y\_i}^Tx\_i + \Delta) 
 # 「バニラ」勾配降下法
 
 while True:
-  weights_grad = evaluate_gradient(loss_fun, data, weights)
-  weights += - step_size * weights_grad # パラメータを更新
+    weights_grad = evaluate_gradient(loss_fun, data, weights)
+    weights += -step_size * weights_grad  # パラメータを更新
 ```
 
 この単純なループは、すべてのニューラルネットワークライブラリの中核をなすものです。他にも最適化手法（たとえば LBFGS など）は存在しますが、現在のところニューラルネットワークの損失関数を最適化する方法としては、勾配降下法が圧倒的に一般的かつ確立された手法です。
@@ -319,9 +324,9 @@ while True:
 # 「バニラ」ミニバッチ勾配降下法
 
 while True:
-  data_batch = sample_training_data(data, 256) # 256サンプルを取得
-  weights_grad = evaluate_gradient(loss_fun, data_batch, weights)
-  weights += - step_size * weights_grad # パラメータを更新
+    data_batch = sample_training_data(data, 256)  # 256サンプルを取得
+    weights_grad = evaluate_gradient(loss_fun, data_batch, weights)
+    weights += -step_size * weights_grad  # パラメータを更新
 ```
 
 この手法がうまく機能する理由は、トレーニングデータ内の例に相関があるためです。これを理解するために、極端なケースを考えてみましょう。

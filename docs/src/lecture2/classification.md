@@ -83,10 +83,10 @@ d\_1 (I\_1, I\_2) = \sum\_{p} \left| I^p\_1 - I^p\_2 \right|
 次に、分類器をコードでどのように実装するかを見ていきましょう。まず、CIFAR-10 のデータをメモリに読み込み、4 つの配列として扱います。すなわち、訓練用データとラベル、テスト用データとラベルです。以下のコードでは、`Xtr`（サイズは 50,000 × 32 × 32 × 3）が訓練用のすべての画像を保持しており、対応する 1 次元配列`Ytr`（長さ 50,000）が訓練用のラベル（0 から 9 の値）を保持しています。
 
 ```python
-Xtr, Ytr, Xte, Yte = load_CIFAR10('data/cifar10/') # 簡単のための魔法の関数
+Xtr, Ytr, Xte, Yte = load_CIFAR10("data/cifar10/")  # 簡単のための魔法の関数
 # すべての画像を一次元に平坦化する
-Xtr_rows = Xtr.reshape(Xtr.shape[0], 32 * 32 * 3) # Xtr_rowsは50000 x 3072になる
-Xte_rows = Xte.reshape(Xte.shape[0], 32 * 32 * 3) # Xte_rowsは10000 x 3072になる
+Xtr_rows = Xtr.reshape(Xtr.shape[0], 32 * 32 * 3)  # Xtr_rowsは50000 x 3072になる
+Xte_rows = Xte.reshape(Xte.shape[0], 32 * 32 * 3)  # Xte_rowsは10000 x 3072になる
 ```
 
 すべての画像を行ベクトルとして展開したので、以下に分類器の訓練と評価を行う方法を示します。
@@ -96,7 +96,7 @@ nn = NearestNeighbor()  # 最近傍分類器のクラスを作成します
 nn.train(Xtr_rows, Ytr)  # 訓練画像とそのラベルで分類器を訓練します
 Yte_predict = nn.predict(Xte_rows)  # テスト画像に対してラベルを予測します
 # 次に分類精度（正しく予測された例の割合）を出力します
-print('accuracy: %f' % ( np.mean(Yte_predict == Yte) ))
+print("accuracy: %f" % (np.mean(Yte_predict == Yte)))
 ```
 
 評価基準としては、予測が正解した割合を測る**精度（accuracy）**を使用するのが一般的であることに注意してください。今後作成するすべての分類器は、共通の API に従うことになります。それは、訓練データとラベルを受け取って学習を行う`train(X, y)`関数と、新しいデータに対してラベルを予測する`predict(X)`関数を備えているというものです。分類器の内部では、データからラベルを予測するための何らかのモデルが構築されます。もちろん、ここでは肝心の分類器の中身はまだ示していません。以下は、このテンプレートに準拠した、L1 距離を用いるシンプルな最近傍分類器の実装です。
@@ -104,31 +104,34 @@ print('accuracy: %f' % ( np.mean(Yte_predict == Yte) ))
 ```python
 import numpy as np
 
+
 class NearestNeighbor(object):
-  def __init__(self):
-    pass
+    def __init__(self):
+        pass
 
-  def train(self, X, y):
-    """XはN×Dの配列で、各行が一つの訓練データを表します。YはサイズNの1次元配列です。"""
-    # 最近傍分類器は、訓練データをそのまま記憶するだけです
-    self.Xtr = X
-    self.ytr = y
+    def train(self, X, y):
+        """XはN×Dの配列で、各行が一つの訓練データを表します。YはサイズNの1次元配列です。"""
+        # 最近傍分類器は、訓練データをそのまま記憶するだけです
+        self.Xtr = X
+        self.ytr = y
 
-  def predict(self, X):
-    """XはN×Dの配列で、各行が予測対象のデータを表します。"""
-    num_test = X.shape[0]
-    # 出力の型が入力の型と一致するようにします
-    Ypred = np.zeros(num_test, dtype=self.ytr.dtype)
+    def predict(self, X):
+        """XはN×Dの配列で、各行が予測対象のデータを表します。"""
+        num_test = X.shape[0]
+        # 出力の型が入力の型と一致するようにします
+        Ypred = np.zeros(num_test, dtype=self.ytr.dtype)
 
-    # すべてのテストデータに対してループします
-    for i in range(num_test):
-      # i番目のテスト画像に最も近い訓練画像を探します
-      # L1距離（絶対値の差の合計）を用います
-      distances = np.sum(np.abs(self.Xtr - X[i, :]), axis=1)
-      min_index = np.argmin(distances)  # 最も距離が小さいインデックスを取得します
-      Ypred[i] = self.ytr[min_index]  # 最も近いデータのラベルを予測結果として代入します
+        # すべてのテストデータに対してループします
+        for i in range(num_test):
+            # i番目のテスト画像に最も近い訓練画像を探します
+            # L1距離（絶対値の差の合計）を用います
+            distances = np.sum(np.abs(self.Xtr - X[i, :]), axis=1)
+            min_index = np.argmin(distances)  # 最も距離が小さいインデックスを取得します
+            Ypred[i] = self.ytr[
+                min_index
+            ]  # 最も近いデータのラベルを予測結果として代入します
 
-    return Ypred
+        return Ypred
 ```
 
 このコードを実行すると、この分類器は CIFAR-10 に対してわずか 38.6%の精度しか達成できないことがわかります。これは、ランダムに予測した場合（10 クラスあるため精度は 10%）よりははるかに優れていますが、人間の精度（[およそ 94%と推定される](https://karpathy.github.io/2011/04/27/manually-classifying-cifar10/)）や、約 95%の精度を達成して人間並みの性能を示す最新の畳み込みニューラルネットワーク（CNN）には到底及びません（CIFAR-10 に関する最近の Kaggle コンペティションの[リーダーボード](https://www.kaggle.com/c/cifar-10/leaderboard)を参照してください）。
@@ -142,7 +145,7 @@ d\_2 (I\_1, I\_2) = \sqrt{\sum\_{p} \left( I^p\_1 - I^p\_2 \right)^2}
 つまり、以前と同様に画素ごとの差を計算しますが、今回はその差をすべて二乗し、それらを合計し、最後に平方根を取ります。NumPy を使った先ほどのコードでは、1 行だけ変更すれば対応できます。距離を計算している行を以下のように置き換えます。
 
 ```python
-distances = np.sqrt(np.sum(np.square(self.Xtr - X[i,:]), axis = 1))
+distances = np.sqrt(np.sum(np.square(self.Xtr - X[i, :]), axis=1))
 ```
 
 ここで`np.sqrt`を使って平方根を取っていますが、実際の最近傍法の応用では、この平方根の計算は省略しても問題ありません。なぜなら平方根は単調関数であり、距離の絶対値をスケーリングするだけで順位の順序は保たれるからです。つまり、平方根を取っても取らなくても、最も近い近傍は同じになります。この L2 距離を使って CIFAR-10 に対して最近傍分類器を実行すると、精度は 35.4%となり、L1 距離を用いた場合よりもやや低くなります。
@@ -194,17 +197,16 @@ Ytr = Ytr[1000:]
 # 検証セットで最も良い性能を示すハイパーパラメータを探索します
 validation_accuracies = []
 for k in [1, 3, 5, 10, 20, 50, 100]:
+    # 特定のkの値を使い、検証データで性能を評価します
+    nn = NearestNeighbor()
+    nn.train(Xtr_rows, Ytr)
+    # kを引数として受け取れるように修正されたNearestNeighborクラスを仮定します
+    Yval_predict = nn.predict(Xval_rows, k=k)
+    acc = np.mean(Yval_predict == Yval)
+    print("accuracy: %f" % (acc,))
 
-  # 特定のkの値を使い、検証データで性能を評価します
-  nn = NearestNeighbor()
-  nn.train(Xtr_rows, Ytr)
-  # kを引数として受け取れるように修正されたNearestNeighborクラスを仮定します
-  Yval_predict = nn.predict(Xval_rows, k=k)
-  acc = np.mean(Yval_predict == Yval)
-  print('accuracy: %f' % (acc,))
-
-  # 検証セットでの結果を記録します
-  validation_accuracies.append((k, acc))
+    # 検証セットでの結果を記録します
+    validation_accuracies.append((k, acc))
 ```
 
 この手順を終えると、どの k の値が最も良い結果を出したのかを示すグラフを描くことができます。そして、その最良の k を選び、最後に一度だけ実際のテストセットで評価を行い、最終的な性能を報告します。
