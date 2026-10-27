@@ -10,14 +10,14 @@ If you have Docker installed, you can use devcontainer. Otherwise, the following
 
 - OS that supports shell scripts
 - Python3
-- [Poetry](https://python-poetry.org/)
+- [uv](https://docs.astral.sh/uv/)
 
 ```sh
-# Install dependencies
-poetry install
+# Install dependencies (add `--group gpu` for torch)
+uv sync
 
 # Format code with ruff
-poetry run ruff format .
+uv run ruff format .
 
 # Install pre-commit to check formatting
 # and remove metadata from *.ipynb When you commit.

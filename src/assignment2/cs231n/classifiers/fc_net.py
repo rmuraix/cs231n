@@ -122,13 +122,13 @@ class FullyConnectedNet(object):
             # 重みとバイアスを初期化
             # 重みは正規分布からランダムに選んで初期化し、
             # バイアスはゼロで初期化する
-            self.params[f"W{l+1}"] = np.random.randn(i, j) * weight_scale
-            self.params[f"b{l+1}"] = np.zeros(j)
+            self.params[f"W{l + 1}"] = np.random.randn(i, j) * weight_scale
+            self.params[f"b{l + 1}"] = np.zeros(j)
 
             # 正規化が有効で、最後のレイヤーでない場合
             if self.normalization and l < self.num_layers - 1:
-                self.params[f"gamma{l+1}"] = np.ones(j)
-                self.params[f"beta{l+1}"] = np.zeros(j)
+                self.params[f"gamma{l + 1}"] = np.ones(j)
+                self.params[f"beta{l + 1}"] = np.zeros(j)
 
         # del self.params[f'gamma{l+1}'], self.params[f'beta{l+1}'] # no batchnorm after last FC
 
@@ -235,7 +235,7 @@ class FullyConnectedNet(object):
 
         for l in range(self.num_layers):
             # パラメーターのリスト
-            keys = [f"W{l+1}", f"b{l+1}", f"gamma{l+1}", f"beta{l+1}"]
+            keys = [f"W{l + 1}", f"b{l + 1}", f"gamma{l + 1}", f"beta{l + 1}"]
             # パラメーターを取得する
             w, b, gamma, beta = (self.params.get(k, None) for k in keys)
 
@@ -296,12 +296,12 @@ class FullyConnectedNet(object):
         for l in reversed(range(self.num_layers)):
             dout, dW, db, dgamma, dbeta = generic_backward(dout, cache[l])
 
-            grads[f"W{l+1}"] = dW + self.reg * self.params[f"W{l+1}"]
-            grads[f"b{l+1}"] = db
+            grads[f"W{l + 1}"] = dW + self.reg * self.params[f"W{l + 1}"]
+            grads[f"b{l + 1}"] = db
 
             if dgamma is not None and l < self.num_layers - 1:
-                grads[f"gamma{l+1}"] = dgamma
-                grads[f"beta{l+1}"] = dbeta
+                grads[f"gamma{l + 1}"] = dgamma
+                grads[f"beta{l + 1}"] = dbeta
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
